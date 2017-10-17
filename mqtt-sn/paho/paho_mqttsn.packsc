@@ -1,0 +1,36 @@
+
+{
+    "paho_mqttsn": {
+        "_description": "Third Party MQTT-SN Packet Implementation",
+        "_headers": [
+            "MQTTSNConnect.h",
+            "MQTTSNPacket.h",
+            "MQTTSNPublish.h",
+            "MQTTSNSearch.h",
+            "MQTTSNSubscribe.h",
+            "MQTTSNUnsubscribe.h",
+            "StackTrace.h"
+        ],
+        "_files": [
+            "MQTTSNConnectClient.c",
+            "MQTTSNConnectServer.c",
+            "MQTTSNDeserializePublish.c",
+            "MQTTSNPacket.c",
+            "MQTTSNSearchClient.c",
+            "MQTTSNSearchServer.c",
+            "MQTTSNSerializePublish.c",
+            "MQTTSNSubscribeClient.c",
+            "MQTTSNSubscribeServer.c",
+            "MQTTSNUnsubscribeClient.c",
+            "MQTTSNUnsubscribeServer.c"
+        ],
+        "_includes": [
+            "."
+        ],
+        "_group": "MQTT-SN",
+        "_class": "nRF-Thread",
+        "_attrs": [
+            "public"
+        ]
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "_config_overrides": [
+        {
+            "APP_TIMER_CONFIG_USE_SCHEDULER": 0
+        },
+        {
+            "RNG_ENABLED": 0
+        },
+        {
+            "MEMORY_MANAGER_SMALL_BLOCK_COUNT": 8
+        },
+        {
+            "MEMORY_MANAGER_SMALL_BLOCK_SIZE": 128
+        },
+        {
+            "MEMORY_MANAGER_MEDIUM_BLOCK_COUNT": 4
+        },
+        {
+            "MEMORY_MANAGER_MEDIUM_BLOCK_SIZE": 256
+        }
+    ], 
+    "_links": [
+        "appskeleton_unity_nrf52", 
+        "mqttsn_client:file_included_by_test",
+        "paho_mqttsn",
+        "nrf_log:noimpl",
+        "nrf_drv_rng:cmock",
+        "app_timer:cmock",
+        "app_error:cmock",
+        "mem_manager:cmock",
+        "mqttsn_transport_ot:cmock",
+        "mqttsn_platform:cmock"
+    ],
+    "_name": "test_mqttsn_client"
+}

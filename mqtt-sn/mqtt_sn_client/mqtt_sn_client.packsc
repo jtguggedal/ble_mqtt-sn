@@ -1,0 +1,126 @@
+{
+    "mqttsn_client": {
+        "_description": "MQTT-SN Client Implementation",
+        "_headers": [
+            "mqttsn_client.h"
+        ],
+        "_group": "MQTT-SN",
+        "_class": "nRF_Thread",
+        "_includes": [
+            "."
+        ], 
+        "_variants": [
+        {
+            "_attrs": [
+                "public"
+            ], 
+            "_files": [
+                "mqttsn_client.c",
+                "mqttsn_packet_fifo.c",
+                "mqttsn_packet_sender.c",
+                "mqttsn_packet_receiver.c"
+            ], 
+            "_links": [
+                "paho_mqttsn", 
+                "mem_manager"
+            ]
+        }, 
+        {
+            "_attrs": [
+                "private"
+            ], 
+            "_files": [
+                "cmock\\mock_mqttsn_client.c"
+            ], 
+            "_includes": [
+                "3|cmock"
+            ], 
+            "_name": "cmock"
+        }, 
+        {
+            "_attrs": [
+                "private"
+            ],
+            "_name": "file_included_by_test"
+        }
+        ]
+    },
+    "mqttsn_transport_ot": {
+        "_description": "MQTT-SN Transport Interface - OpenThread stack",
+        "_headers": [
+            "mqttsn_transport.h"
+        ],
+        "_variants": [
+        {
+            "_attrs": [
+                "public"
+            ], 
+            "_files": [
+                "mqttsn_transport_ot.c"
+            ], 
+            "_links": [
+                "mem_manager"
+            ]
+        }, 
+        {
+            "_attrs": [
+                "private"
+            ], 
+            "_files": [
+                "cmock\\mock_mqttsn_transport.c"
+            ], 
+            "_includes": [
+                "3|cmock"
+            ], 
+            "_name": "cmock"
+        }, 
+        {
+            "_attrs": [
+                "private"
+            ],
+            "_name": "file_included_by_test"
+        }
+        ],
+        "_group": "MQTT-SN",
+        "_class": "nRF_Thread"
+    },
+    "mqttsn_platform": {
+        "_description": "MQTT-SN nRF52840 Platform Interface",
+        "_headers": [
+            "mqttsn_platform.h"
+        ],
+        "_variants": [
+        {
+            "_attrs": [
+                "public"
+            ], 
+            "_files": [
+                "mqttsn_platform.c"
+            ], 
+            "_links": [
+                "app_timer"
+            ]
+        }, 
+        {
+            "_attrs": [
+                "private"
+            ], 
+            "_files": [
+                "cmock\\mock_mqttsn_platform.c"
+            ], 
+            "_includes": [
+                "3|cmock"
+            ], 
+            "_name": "cmock"
+        }, 
+        {
+            "_attrs": [
+                "private"
+            ],
+            "_name": "file_included_by_test"
+        }
+        ],
+        "_group": "MQTT-SN",
+        "_class": "nRF_Thread"
+    }
+}
