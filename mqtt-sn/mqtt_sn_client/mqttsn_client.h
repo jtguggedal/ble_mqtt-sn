@@ -265,8 +265,8 @@ struct mqttsn_client_t
  */
 uint32_t mqttsn_client_init(mqttsn_client_t             * p_client,
                             uint16_t                      port,
-                            mqttsn_client_evt_handler_t   evt_handler,
-                            const void                  * p_transport_context);
+                            mqttsn_client_evt_handler_t   evt_handler
+                            /*const void                  * p_transport_context*/);
 
 /**@brief Searches gateway.  
  *
@@ -431,3 +431,4 @@ uint32_t mqttsn_client_willmsgupd(mqttsn_client_t * p_client,
 uint32_t mqttsn_client_uninit(mqttsn_client_t * p_client);
 
 #endif // MQTTSN_CLIENT_H
+

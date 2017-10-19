@@ -1205,18 +1205,18 @@
 // <e> RNG_ENABLED - nrf_drv_rng - RNG peripheral driver
 //==========================================================
 #ifndef RNG_ENABLED
-#define RNG_ENABLED 0
+#define RNG_ENABLED 1
 #endif
 // <q> RNG_CONFIG_ERROR_CORRECTION  - Error correction
  
 
 #ifndef RNG_CONFIG_ERROR_CORRECTION
-#define RNG_CONFIG_ERROR_CORRECTION 0
+#define RNG_CONFIG_ERROR_CORRECTION 1
 #endif
 
 // <o> RNG_CONFIG_POOL_SIZE - Pool size 
 #ifndef RNG_CONFIG_POOL_SIZE
-#define RNG_CONFIG_POOL_SIZE 32
+#define RNG_CONFIG_POOL_SIZE 64
 #endif
 
 // <o> RNG_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -1456,7 +1456,7 @@
 // <e> SPI_ENABLED - nrf_drv_spi - SPI/SPIM peripheral driver
 //==========================================================
 #ifndef SPI_ENABLED
-#define SPI_ENABLED 0
+#define SPI_ENABLED 1
 #endif
 // <o> SPI_DEFAULT_CONFIG_IRQ_PRIORITY  - Interrupt priority
  
@@ -2468,7 +2468,7 @@
  
 
 #ifndef LED_SOFTBLINK_ENABLED
-#define LED_SOFTBLINK_ENABLED 0
+#define LED_SOFTBLINK_ENABLED 1
 #endif
 
 // <q> LOW_POWER_PWM_ENABLED  - low_power_pwm - low_power_pwm module
@@ -2481,7 +2481,7 @@
 // <e> MEM_MANAGER_ENABLED - mem_manager - Dynamic memory allocator
 //==========================================================
 #ifndef MEM_MANAGER_ENABLED
-#define MEM_MANAGER_ENABLED 0
+#define MEM_MANAGER_ENABLED 1
 #endif
 // <o> MEMORY_MANAGER_SMALL_BLOCK_COUNT - Size of each memory blocks identified as 'small' block.  <0-255> 
 
@@ -2877,7 +2877,7 @@
  
 
 #ifndef NRF_QUEUE_ENABLED
-#define NRF_QUEUE_ENABLED 0
+#define NRF_QUEUE_ENABLED 1
 #endif
 
 // <q> NRF_SECTION_ITER_ENABLED  - nrf_section_iter - Section iterator
@@ -3076,7 +3076,7 @@
 // <4=> Debug 
 
 #ifndef NRF_LOG_DEFAULT_LEVEL
-#define NRF_LOG_DEFAULT_LEVEL 3
+#define NRF_LOG_DEFAULT_LEVEL 4
 #endif
 
 // <q> NRF_LOG_DEFERRED  - Enable deffered logger.

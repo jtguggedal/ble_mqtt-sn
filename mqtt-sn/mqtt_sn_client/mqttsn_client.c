@@ -219,14 +219,17 @@ static void keep_alive_transmission_attempt(mqttsn_client_t * p_client)
     }
 }
 
+
+// Removed Thread dependency
+
 uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
                             uint16_t                    port,
-                            mqttsn_client_evt_handler_t evt_handler,
-                            const void                * p_transport_context)
+                            mqttsn_client_evt_handler_t evt_handler
+                            /*const void                * p_transport_context*/)
 {
     NULL_PARAM_CHECK(p_client);
     NULL_PARAM_CHECK(evt_handler);
-    NULL_PARAM_CHECK(p_transport_context);
+    //NULL_PARAM_CHECK(p_transport_context);
 
     uint32_t err_code = NRF_SUCCESS;
     mqttsn_packet_fifo_init(p_client);
@@ -237,6 +240,7 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
         return NRF_ERROR_INTERNAL;
     }
 
+    /*
     if (mqttsn_transport_init(p_client, port, p_transport_context) != NRF_SUCCESS)
     {
         NRF_LOG_ERROR("Transport failed to initialize\r\n");
@@ -248,6 +252,7 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
         NRF_LOG_ERROR("Platform failed to initialize\r\n");
         return NRF_ERROR_INTERNAL;
     }
+    */
 
     p_client->client_state = MQTTSN_CLIENT_DISCONNECTED;
     p_client->evt_handler  = evt_handler;
@@ -255,6 +260,7 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
     return err_code;
 }
 
+/*
 uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client)
 {
     NULL_PARAM_CHECK(p_client);
@@ -274,6 +280,7 @@ uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client)
 
     return NRF_SUCCESS;
 }
+*/
 
 uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,
                                mqttsn_remote_t      * p_remote,
@@ -513,7 +520,9 @@ uint32_t mqttsn_client_uninit(mqttsn_client_t * p_client)
     }
 
     mqttsn_packet_fifo_uninit(p_client);
-    return mqttsn_transport_uninit(p_client) == 0 ? NRF_SUCCESS : NRF_ERROR_INTERNAL;
+    
+    // Removed dependency of Open Thread
+    return /*mqttsn_transport_uninit(p_client) == 0 ?*/ NRF_SUCCESS; /*: NRF_ERROR_INTERNAL;*/
 }
 
 void mqttsn_client_timer_timeout_handle(mqttsn_client_t * p_client)

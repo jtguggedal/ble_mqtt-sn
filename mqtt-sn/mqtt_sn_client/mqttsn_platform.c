@@ -10,6 +10,7 @@
  *
  */
 
+#include "nrf_drv_rng.h"
 #include "mqttsn_platform.h"
 #include "mqttsn_packet_internal.h"
 #include "app_timer.h"
@@ -30,6 +31,10 @@ static void timer_timeout_handler(void * p_context)
 
 uint32_t mqttsn_platform_init()
 {
+    nrf_drv_rng_config_t rng_cfg = NRF_DRV_RNG_DEFAULT_CONFIG;
+    uint32_t err_code = nrf_drv_rng_init(&rng_cfg);
+    APP_ERROR_CHECK(err_code);
+    
     return mqttsn_platform_timer_init();
 }
 
@@ -75,7 +80,13 @@ uint32_t mqttsn_platform_timer_set_in_ms(uint32_t timeout_ms)
     return mqttsn_platform_timer_cnt_get() + timeout_ms;
 }
 
+
+// Removed thread dependency
 uint16_t mqttsn_platform_rand(uint16_t max_val)
 {
-    return 1;//otPlatRandomGet() % max_val;
+    uint8_t rng_buf[4];
+    nrf_drv_rng_rand(rng_buf, sizeof(rng_buf));
+    uint32_t random = (rng_buf[0] << 24) + (rng_buf[1] << 16) + (rng_buf[2] << 8) + (rng_buf[3]);
+    
+    return random % max_val;
 }

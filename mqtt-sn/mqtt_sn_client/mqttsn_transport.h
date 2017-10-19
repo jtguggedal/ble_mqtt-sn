@@ -72,3 +72,4 @@ uint32_t mqttsn_transport_read(void                   * p_context,
 uint32_t mqttsn_transport_uninit(mqttsn_client_t * p_client);
 
 #endif // MQTTSN_TRANSPORT_H
+

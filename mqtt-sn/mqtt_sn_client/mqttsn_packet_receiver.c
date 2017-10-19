@@ -189,6 +189,10 @@ static uint32_t connack_handle(mqttsn_client_t * p_client,
         NRF_LOG_ERROR("CONNACK packet cannot be deserialized.\r\n");
         return NRF_ERROR_INTERNAL;
     }
+    
+    // Fix: Moved declarations out of switch to avoid warnings
+    mqttsn_event_t evt_rc;
+    mqttsn_event_t evt_acc;
 
     switch(return_code)
     {
@@ -201,23 +205,17 @@ static uint32_t connack_handle(mqttsn_client_t * p_client,
             mqttsn_platform_timer_start(p_client, p_client->keep_alive.timeout);
         
             p_client->client_state = MQTTSN_CLIENT_CONNECTED;
-            mqttsn_event_t evt_rc = {.event_id = MQTTSN_EVENT_CONNECTED};
+            evt_rc.event_id = MQTTSN_EVENT_CONNECTED;
             p_client->evt_handler(p_client, &evt_rc);
             return NRF_SUCCESS;
 
         case MQTTSN_RC_REJECTED_CONGESTED:
             NRF_LOG_INFO("Connect message was rejected. Reason: congestion.\r\n");
-            mqttsn_event_t evt_acc = 
-            {
-                .event_id = MQTTSN_EVENT_TIMEOUT,
-                .event_data.error = 
-                {
-                    .error    = MQTTSN_ERROR_REJECTED_CONGESTION,
-                    .msg_type = mqttsn_packet_msgtype_error_get(p_data),
-                    .msg_id   = 0,
-                }
-
-            };
+            evt_acc.event_id = MQTTSN_EVENT_TIMEOUT,
+            evt_acc.event_data.error.error    = MQTTSN_ERROR_REJECTED_CONGESTION;
+            evt_acc.event_data.error.msg_type = mqttsn_packet_msgtype_error_get(p_data);
+            evt_acc.event_data.error.msg_id   = 0;
+        
             mqttsn_packet_fifo_elem_dequeue(p_client, MQTTSN_MSGTYPE_CONNECT, MQTTSN_MESSAGE_TYPE);
             p_client->evt_handler(p_client, &evt_acc);
             return NRF_SUCCESS;
@@ -291,6 +289,11 @@ static uint32_t regack_handle(mqttsn_client_t * p_client,
     uint16_t packet_id   = 0;
     uint8_t  return_code = 0;
     uint32_t index       = 0;
+        
+    // Fix: Moved declarations out of switch to avoid warnings
+    mqttsn_event_t evt_rc;
+    mqttsn_event_t evt_acc;
+    mqttsn_topic_t topic;
 
     if (MQTTSNDeserialize_regack(&topic_id, &packet_id, (unsigned char *)(&return_code), (unsigned char *)p_data, datalen) == 0)
     {
@@ -298,20 +301,16 @@ static uint32_t regack_handle(mqttsn_client_t * p_client,
         return NRF_ERROR_INTERNAL;
     }
 
+    
     switch (return_code)
     {
         case MQTTSN_RC_REJECTED_CONGESTED:
             NRF_LOG_INFO("Register message was rejected. Reason: congestion.\r\n");
-            mqttsn_event_t evt_rc = 
-            {
-                .event_id = MQTTSN_EVENT_TIMEOUT,
-                .event_data.error =
-                {
-                    .error    = MQTTSN_ERROR_REJECTED_CONGESTION,
-                    .msg_type = mqttsn_packet_msgtype_error_get(p_data),
-                    .msg_id   = 0,
-                }
-            };
+            evt_rc.event_id = MQTTSN_EVENT_TIMEOUT;
+            evt_rc.event_data.error.error    = MQTTSN_ERROR_REJECTED_CONGESTION;
+            evt_rc.event_data.error.msg_type = mqttsn_packet_msgtype_error_get(p_data);
+            evt_rc.event_data.error.msg_id   = 0;
+        
             mqttsn_packet_fifo_elem_dequeue(p_client, packet_id, MQTTSN_MESSAGE_ID);
             p_client->evt_handler(p_client, &evt_rc);
             return NRF_SUCCESS;
@@ -326,19 +325,13 @@ static uint32_t regack_handle(mqttsn_client_t * p_client,
 
             mqttsn_packet_fifo_elem_dequeue(p_client, packet_id, MQTTSN_MESSAGE_ID);
 
-            mqttsn_topic_t topic =
-            {
-                .topic_id     = topic_id,
-                .p_topic_name = p_client->packet_queue.packet[index].topic.p_topic_name,
-            };
-            mqttsn_event_t evt_acc =
-            {
-                .event_id = MQTTSN_EVENT_REGISTERED,
-                .event_data.registered =
-                {
-                    .packet = {.id = packet_id, .topic = topic},
-                },
-            };
+            topic.topic_id     = topic_id;
+            topic.p_topic_name = p_client->packet_queue.packet[index].topic.p_topic_name;
+            
+            evt_acc.event_id = MQTTSN_EVENT_REGISTERED,
+            evt_acc.event_data.registered.packet.id = packet_id; 
+            evt_acc.event_data.registered.packet.topic = topic;
+            
             p_client->evt_handler(p_client, &evt_acc);
             return NRF_SUCCESS;
 
@@ -422,6 +415,10 @@ static uint32_t puback_handle(mqttsn_client_t * p_client,
     uint16_t topic_id    = 0;
     uint16_t packet_id   = 0;
     uint8_t  return_code = 0;
+    
+    // Fix: Moved declarations out of switch to avoid warnings
+    mqttsn_event_t evt_rc;
+    mqttsn_event_t evt_acc;
 
     if (MQTTSNDeserialize_puback(&topic_id, &packet_id, (unsigned char *)(&return_code), (unsigned char *)(p_data), datalen) == 0)
     {
@@ -433,16 +430,11 @@ static uint32_t puback_handle(mqttsn_client_t * p_client,
     {
         case MQTTSN_RC_REJECTED_CONGESTED:
             NRF_LOG_INFO("Register message was rejected. Reason: congestion.\r\n");
-            mqttsn_event_t evt_rc = 
-            {
-                .event_id         = MQTTSN_EVENT_TIMEOUT,
-                .event_data.error = 
-                {
-                    .error    = MQTTSN_ERROR_REJECTED_CONGESTION,
-                    .msg_type = mqttsn_packet_msgtype_error_get(p_data),
-                    .msg_id   = 0,
-                }
-            };
+            evt_rc.event_id         = MQTTSN_EVENT_TIMEOUT;
+            evt_rc.event_data.error.error    = MQTTSN_ERROR_REJECTED_CONGESTION;
+            evt_rc.event_data.error.msg_type = mqttsn_packet_msgtype_error_get(p_data);
+            evt_rc.event_data.error.msg_id   = 0;
+        
             mqttsn_packet_fifo_elem_dequeue(p_client, packet_id, MQTTSN_MESSAGE_ID);
             p_client->evt_handler(p_client, &evt_rc);
             return NRF_SUCCESS;
@@ -455,7 +447,7 @@ static uint32_t puback_handle(mqttsn_client_t * p_client,
             }
     
             mqttsn_packet_fifo_elem_dequeue(p_client, packet_id, MQTTSN_MESSAGE_ID);
-            mqttsn_event_t evt_acc = {.event_id = MQTTSN_EVENT_PUBLISHED};
+            evt_acc.event_id = MQTTSN_EVENT_PUBLISHED;
             p_client->evt_handler(p_client, &evt_acc);
             return NRF_SUCCESS;
 
@@ -483,6 +475,10 @@ static uint32_t suback_handle(mqttsn_client_t * p_client,
     uint16_t packet_id   = 0;
     uint8_t  return_code = 0;
     uint8_t  qos         = 0;
+    
+    // Fix: Moved declarations out of switch to avoid warnings
+    mqttsn_event_t evt_rc;
+    mqttsn_event_t evt_acc;
 
     if (MQTTSNDeserialize_suback((int *)(&qos),
                                  &topic_id,
@@ -499,16 +495,11 @@ static uint32_t suback_handle(mqttsn_client_t * p_client,
     {
         case MQTTSN_RC_REJECTED_CONGESTED:
             NRF_LOG_INFO("Register message was rejected. Reason: congestion.\r\n");
-            mqttsn_event_t evt_rc = 
-            {
-                .event_id         = MQTTSN_EVENT_TIMEOUT,
-                .event_data.error = 
-                {
-                    .error    = MQTTSN_ERROR_REJECTED_CONGESTION,
-                    .msg_type = mqttsn_packet_msgtype_error_get(p_data),
-                    .msg_id   = 0,
-                }
-            };
+            evt_rc.event_id         = MQTTSN_EVENT_TIMEOUT;
+            evt_rc.event_data.error.error    = MQTTSN_ERROR_REJECTED_CONGESTION;
+            evt_rc.event_data.error.msg_type = mqttsn_packet_msgtype_error_get(p_data);
+            evt_rc.event_data.error.msg_id   = 0;
+        
             mqttsn_packet_fifo_elem_dequeue(p_client, packet_id, MQTTSN_MESSAGE_ID);
             p_client->evt_handler(p_client, &evt_rc);
             return NRF_SUCCESS;
@@ -521,7 +512,7 @@ static uint32_t suback_handle(mqttsn_client_t * p_client,
             }
     
             mqttsn_packet_fifo_elem_dequeue(p_client, packet_id, MQTTSN_MESSAGE_ID);
-            mqttsn_event_t evt_acc = {.event_id = MQTTSN_EVENT_SUBSCRIBED};
+            evt_acc.event_id = MQTTSN_EVENT_SUBSCRIBED;
             p_client->evt_handler(p_client, &evt_acc);
             return NRF_SUCCESS;
 
@@ -628,6 +619,11 @@ static uint32_t willtopicresp_handle(mqttsn_client_t * p_client,
                                      uint16_t          datalen)
 {
     uint32_t return_code = 0;
+    
+    // Fix: Moved declarations out of switch to avoid warnings
+    mqttsn_event_t evt_rc;
+    mqttsn_event_t evt_acc;
+    
     if (MQTTSNDeserialize_willtopicresp((int *)(&return_code), (unsigned char *)p_data, datalen) == 0)
     {
         NRF_LOG_ERROR("WILLTOPICRESP packet cannot be deserialized.\r\n");
@@ -638,23 +634,18 @@ static uint32_t willtopicresp_handle(mqttsn_client_t * p_client,
     {
         case MQTTSN_RC_REJECTED_CONGESTED:
             NRF_LOG_INFO("WILLTOPICUPD message was rejected. Reason: congestion.\r\n");
-            mqttsn_event_t evt_rc = 
-            {
-                .event_id         = MQTTSN_EVENT_TIMEOUT,
-                .event_data.error = 
-                {
-                    .error    = MQTTSN_ERROR_REJECTED_CONGESTION,
-                    .msg_type = mqttsn_packet_msgtype_error_get(p_data),
-                    .msg_id   = 0,
-                }
-            };
+            evt_rc.event_id = MQTTSN_EVENT_TIMEOUT;
+            evt_rc.event_data.error.error    = MQTTSN_ERROR_REJECTED_CONGESTION;
+            evt_rc.event_data.error.msg_type = mqttsn_packet_msgtype_error_get(p_data);
+            evt_rc.event_data.error.msg_id   = 0;
+
             mqttsn_packet_fifo_elem_dequeue(p_client, MQTTSN_MSGTYPE_WILLTOPICUPD, MQTTSN_MESSAGE_TYPE);
             p_client->evt_handler(p_client, &evt_rc);
             return NRF_SUCCESS;
 
         case MQTTSN_RC_ACCEPTED:
             mqttsn_packet_fifo_elem_dequeue(p_client, MQTTSN_MSGTYPE_WILLTOPICUPD, MQTTSN_MESSAGE_TYPE);
-            mqttsn_event_t evt_acc = {.event_id = MQTTSN_EVENT_WILL_TOPIC_UPD};
+            evt_acc.event_id = MQTTSN_EVENT_WILL_TOPIC_UPD;
             p_client->evt_handler(p_client, &evt_acc);
             return NRF_SUCCESS;
 
@@ -679,6 +670,11 @@ static uint32_t willmsgresp_handle(mqttsn_client_t * p_client,
                                    uint16_t          datalen)
 {
     uint32_t return_code = 0;
+    
+    // Fix: Moved declarations out of switch to avoid warnings
+    mqttsn_event_t evt_rc;
+    mqttsn_event_t evt_acc;
+    
     if (MQTTSNDeserialize_willmsgresp((int *)(&return_code), (unsigned char *)p_data, datalen) == 0)
     {
         NRF_LOG_ERROR("WILLTOPICRESP packet cannot be deserialized.\r\n");
@@ -689,23 +685,18 @@ static uint32_t willmsgresp_handle(mqttsn_client_t * p_client,
     {
         case MQTTSN_RC_REJECTED_CONGESTED:
             NRF_LOG_INFO("WILLTOPICUPD message was rejected. Reason: congestion.\r\n");
-            mqttsn_event_t evt_rc = 
-            {
-                .event_id         = MQTTSN_EVENT_TIMEOUT,
-                .event_data.error = 
-                {
-                    .error    = MQTTSN_ERROR_REJECTED_CONGESTION,
-                    .msg_type = mqttsn_packet_msgtype_error_get(p_data),
-                    .msg_id   = 0,
-                }
-            };
+            evt_rc.event_id                     = MQTTSN_EVENT_TIMEOUT;
+            evt_rc.event_data.error.error       = MQTTSN_ERROR_REJECTED_CONGESTION;
+            evt_rc.event_data.error.msg_type    = mqttsn_packet_msgtype_error_get(p_data);
+            evt_rc.event_data.error.msg_id      = 0;
+        
             mqttsn_packet_fifo_elem_dequeue(p_client, MQTTSN_MSGTYPE_WILLMSGUPD, MQTTSN_MESSAGE_TYPE);
             p_client->evt_handler(p_client, &evt_rc);
             return NRF_SUCCESS;
 
         case MQTTSN_RC_ACCEPTED:
             mqttsn_packet_fifo_elem_dequeue(p_client, MQTTSN_MSGTYPE_WILLMSGUPD, MQTTSN_MESSAGE_TYPE);
-            mqttsn_event_t evt_acc = {.event_id = MQTTSN_EVENT_WILL_MSG_UPD};
+            evt_acc.event_id = MQTTSN_EVENT_WILL_MSG_UPD;
             p_client->evt_handler(p_client, &evt_acc); 
             return NRF_SUCCESS;
 

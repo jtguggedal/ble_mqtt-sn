@@ -71,7 +71,8 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
-#include "MQTTSNPacket.h"
+
+#include "mqttsn_client.h"
 
 
 #define APP_BLE_CONN_CFG_TAG            1                                           /**< A tag identifying the SoftDevice BLE configuration. */
@@ -111,18 +112,164 @@ BLE_ADVERTISING_DEF(m_advertising);                                             
 
 /** MQTT-SN **/
 
-static unsigned char mqttsn_buffer[MQTT_SN_CHUNK_SIZE];
-MQTTSNPacket_connectData options = MQTTSNPacket_connectData_initializer;
-MQTTSN_topicid topic;
-MQTTSNString topicstr;
-int len = 0;
-int dup = 0;
-int qos = 0;
-int retained = 0;
-short packetid = 0;
-unsigned short topicid;
+static mqttsn_client_t      m_client;                                       /**< An MQTT-SN client instance. */
+static mqttsn_remote_t      m_gateway_addr;                                 /**< A gateway address. */
+static uint8_t              m_gateway_id;                                   /**< A gateway ID. */
+static mqttsn_connect_opt_t m_connect_opt;                                  /**< Connect options for the MQTT-SN client. */
+static uint8_t              m_led_state        = 0;                         /**< Previously sent BSP_LED_2 command. */
+static uint16_t             m_msg_id           = 0;                         /**< Message ID thrown with MQTTSN_EVENT_TIMEOUT. */
+static char                 m_client_id[]      = "jt_mqttsn";               /**< The MQTT-SN Client's ID. */
+static char                 m_topic_name[]     = "led/led3";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
+static bool                 m_gateway_found    = false;                     /**< Stores whether a gateway has been found. */
+static mqttsn_topic_t       m_topic            =                            /**< Topic corresponding to subscriber's BSP_LED_2. */
+{
+    .p_topic_name = (unsigned char *)m_topic_name,
+    .topic_id     = 0,
+};
 
-bool mqttsn_new_data = false;
+/*
+typedef struct
+{
+    otInstance * p_ot_instance;                                             // A pointer to the OpenThread instance. 
+} application_t;
+
+
+static application_t m_app =
+{
+    .p_ot_instance = NULL,
+};
+*/
+
+/***************************************************************************************************
+ * @section MQTT-SN
+ **************************************************************************************************/
+
+/**@brief Turns the MQTT-SN network indication LED on.
+ *
+ * @details This LED is on when an MQTT-SN client is in connected or awake state.
+ */
+static void light_on(void)
+{
+    LEDS_ON(BSP_LED_3_MASK);
+}
+
+/**@brief Turns the MQTT-SN network indication LED off.
+ *
+ * @details This LED is on when an MQTT-SN client is in disconnected or asleep state.
+ */
+static void light_off(void)
+{
+    LEDS_OFF(BSP_LED_3_MASK);
+}
+
+
+/**@brief Processes GWINFO message from a gateway.
+ *
+ * @details This function initializes MQTT-SN Client's connect options and launches the connect procedure.
+ *
+ * @param[in]    p_event  Pointer to MQTT-SN event.
+ */
+static void gateway_info_callback(mqttsn_event_t * p_event)
+{
+    m_gateway_found = true;
+    m_gateway_addr  = *(p_event->event_data.connected.p_gateway_addr);
+    m_gateway_id    = p_event->event_data.connected.gateway_id;
+     
+    m_connect_opt.alive_duration = MQTTSN_DEFAULT_ALIVE_DURATION,
+    m_connect_opt.clean_session  = MQTTSN_DEFAULT_CLEAN_SESSION_FLAG,
+    m_connect_opt.will_flag      = MQTTSN_DEFAULT_WILL_FLAG,
+    m_connect_opt.client_id_len  = strlen(m_client_id),
+
+    memcpy(m_connect_opt.p_client_id,  (unsigned char *)m_client_id,  m_connect_opt.client_id_len);
+
+    mqttsn_client_connect(&m_client, &m_gateway_addr, m_gateway_id, &m_connect_opt);
+}
+
+/**@brief Processes CONNACK message from a gateway.
+ *
+ * @details This function launches the topic registration procedure if necessary.
+ */
+static void connected_callback(void)
+{
+    light_on();
+    uint16_t topic_name_len = strlen(m_topic_name);
+    mqttsn_client_topic_register(&m_client, m_topic.p_topic_name, topic_name_len, &m_msg_id);
+}
+
+/**@brief Processes DISCONNECT message from a gateway. */
+static void disconnected_callback(void)
+{
+    light_off();
+}
+
+/**@brief Processes REGACK message from a gateway.
+ *
+ * @param[in] p_event Pointer to MQTT-SN event.
+ */
+static void regack_callback(mqttsn_event_t * p_event)
+{
+    m_topic.topic_id = p_event->event_data.registered.packet.topic.topic_id;
+    NRF_LOG_INFO("MQTT-SN event: Topic has been registered with ID: %d.\r\n",
+                 p_event->event_data.registered.packet.topic.topic_id);
+}
+
+
+/**@brief Processes retransmission limit reached event. */
+static void timeout_callback(mqttsn_event_t * p_event)
+{
+    NRF_LOG_INFO("MQTT-SN event: Timed-out message: %d. Message ID: %d.\r\n",
+                  p_event->event_data.error.msg_type,
+                  p_event->event_data.error.msg_id);
+}
+
+
+/**@brief Function for handling MQTT-SN events. */
+void mqttsn_evt_handler(mqttsn_client_t * p_client, mqttsn_event_t * p_event)
+{
+    switch(p_event->event_id)
+    {
+        case MQTTSN_EVENT_GATEWAY_FOUND:
+            NRF_LOG_INFO("MQTT-SN event: Client has found an active gateway.\r\n");
+            gateway_info_callback(p_event);
+            break;
+
+        case MQTTSN_EVENT_CONNECTED:
+            NRF_LOG_INFO("MQTT-SN event: Client connected.\r\n");
+            connected_callback();
+            break;
+
+        case MQTTSN_EVENT_DISCONNECTED:
+            NRF_LOG_INFO("MQTT-SN event: Client disconnected.\r\n");
+            disconnected_callback();
+            break;
+
+        case MQTTSN_EVENT_REGISTERED:
+            NRF_LOG_INFO("MQTT-SN event: Client registered topic.\r\n");
+            regack_callback(p_event);
+            break;
+
+        case MQTTSN_EVENT_PUBLISHED:
+            NRF_LOG_INFO("MQTT-SN event: Client has successfully published content.\r\n");
+            break;
+
+        case MQTTSN_EVENT_TIMEOUT:
+            NRF_LOG_INFO("MQTT-SN event: Retransmission retries limit has been reached.\r\n");
+            timeout_callback(p_event);
+            break;
+
+        default:
+            break;
+    }
+}
+
+static void mqttsn_init(void)
+{
+    mqttsn_client_init(&m_client, MQTTSN_DEFAULT_CLIENT_PORT, &mqttsn_evt_handler);
+}
+
+
+
+
 
 /** Helper functions **/
 
@@ -131,7 +278,7 @@ uint32_t min(uint32_t a, uint32_t b) {
 }
 
                    
-
+/*
 // Function to chop up strings longer than 18 bytes
 ret_code_t send_in_chunks(uint8_t *buffer, size_t length, size_t chunk_size)
 {
@@ -169,12 +316,21 @@ int transport_sendPacketBuffer(unsigned char* buf, int buflen)
     return rc;
 }
 
+// Function for receiving and parsing MQTT-SN data
+void mqttsn_receive_data() {
+    //while(!mqttsn_new_data) {}
+    mqttsn_new_data = false;
+    NRF_LOG_INFO("MQTT receiver: %s", mqttsn_buffer);    
+    NRF_LOG_FLUSH();
+}
+
+
 
 int transport_getdata(unsigned char* buf, int count)
 {
-    int rc; // = uart->read(buf, count, ASYNC);
+    //mqttsn_receive_data();
 
-    return rc;
+    return mqttsn_buffer[0];
 }
 
 
@@ -182,12 +338,20 @@ ret_code_t mqttsn_connect() {
     MQTTSNPacket_connectData options = MQTTSNPacket_connectData_initializer;
     options.clientID.cstring = MQTT_SN_CLIENT_ID;
     int len = MQTTSNSerialize_connect(mqttsn_buffer, sizeof(mqttsn_buffer), &options);
-    int rc = transport_sendPacketBuffer(mqttsn_buffer, len);
-     
-    /* wait for connack */
-    rc = MQTTSNPacket_read(mqttsn_buffer, sizeof(mqttsn_buffer), transport_getdata);
+    NRF_LOG_HEXDUMP_DEBUG(mqttsn_buffer, sizeof(mqttsn_buffer));
+    NRF_LOG_FLUSH();
+   
+    return transport_sendPacketBuffer(mqttsn_buffer, len);
+}
+*/
+
+/*
+void mqttsn_connack_handler(){
+    MQTTSNPacket_read(mqttsn_buffer, sizeof(mqttsn_buffer), transport_getdata);
     if (rc == MQTTSN_CONNACK)
     {
+        NRF_LOG_RAW_INFO("CONNACK received");
+        NRF_LOG_FLUSH();
         int connack_rc = -1;
      
         if (MQTTSNDeserialize_connack(&connack_rc, mqttsn_buffer, sizeof(mqttsn_buffer)) != 1 || connack_rc != 0)
@@ -202,15 +366,8 @@ ret_code_t mqttsn_connect() {
     }
     return NRF_SUCCESS;
 }
+*/
 
-
-// Function for receiving and parsing MQTT-SN data
-void mqttsn_receive_data() {
-    while(!mqttsn_new_data) {}
-    mqttsn_new_data = false;
-    NRF_LOG_INFO("MQTT receiver: %s", mqttsn_buffer);    
-    NRF_LOG_FLUSH();
-}
 
 static uint16_t   m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
 static uint16_t   m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;            /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
@@ -282,14 +439,17 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
 
     if (p_evt->type == BLE_NUS_EVT_RX_DATA)
     {
-        //uint32_t err_code;
+        uint32_t err_code;
 
         NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.");
         NRF_LOG_HEXDUMP_DEBUG(p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
+        NRF_LOG_FLUSH();
+        /*
         memcpy(mqttsn_buffer, p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
         mqttsn_new_data = true;
-        //mqttsn_receive_data();
-        /*
+        mqttsn_receive_data();
+        */
+        
         for (uint32_t i = 0; i < p_evt->params.rx_data.length; i++)
         {
             do
@@ -306,7 +466,7 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
         {
             while (app_uart_put('\n') == NRF_ERROR_BUSY);
         }
-        */
+        
     }
 
 }
@@ -813,6 +973,7 @@ int main(void)
 
     printf("\r\nUART Start!");
     NRF_LOG_INFO("UART Start!");
+    NRF_LOG_FLUSH();
     err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
     APP_ERROR_CHECK(err_code);
 
@@ -820,7 +981,9 @@ int main(void)
     for (;;)
     {
         if(connected) {
-            mqttsn_receive_data();
+            //transport_sendPacketBuffer(str, sizeof(str));
+            nrf_delay_ms(5000);
+            //mqttsn_connect();
         }
         else
             power_manage();
