@@ -36,7 +36,7 @@
  </Watch4>
  <Files>
   <SessionOpenFile windowGroup="DockEditLeft" x="0" y="53" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" debugPath="../../../main.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="1" y="130" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/libraries/util/app_util.h" debugPath="../../../external/SDK/components/libraries/util/app_util.h" selected="1" top="78" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="130" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/libraries/util/app_util.h" debugPath="../../../external/SDK/components/libraries/util/app_util.h" selected="1" top="78" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="ble_app_uart_pca10056_s140" fileDialogDefaultFilter="*.c" autoConnectTarget="J-Link" buildConfiguration="nrf52840_xxaa" debugSearchFileMap="" fileDialogInitialDirectory="" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>

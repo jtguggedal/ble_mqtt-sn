@@ -1,0 +1,8 @@
+MQTT-SN BLE implementation
+
+Bare minimum
+	- CONNECT
+	- Handle CONNACK and rejections
+	- REGISTER
+	- Handle REGACK and rejections
+	- PUBLISH
