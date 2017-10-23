@@ -10,7 +10,6 @@
  *
  */
 
-// TODO: Remove Thread dependencies?
 
 #ifndef MQTTSN_PACKET_INTERNAL_H
 #define MQTTSN_PACKET_INTERNAL_H

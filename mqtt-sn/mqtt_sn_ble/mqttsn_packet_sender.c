@@ -54,7 +54,7 @@ static uint32_t mqttsn_packet_sender_send(mqttsn_client_t       * p_client,
                                           uint16_t                datalen)
 {
     // TODO: must include some sort of generic function to allow sending over different transport layers
-    return NRF_SUCCESS; // mqttsn_transport_write(p_client, p_remote, p_data, datalen);
+    return NRF_SUCCESS; //mqttsn_transport_write(p_client, p_remote, p_data, datalen);
 }
 
 uint32_t mqttsn_packet_sender_retransmit(mqttsn_client_t       * p_client,

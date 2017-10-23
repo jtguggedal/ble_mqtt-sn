@@ -220,7 +220,7 @@ static void keep_alive_transmission_attempt(mqttsn_client_t * p_client)
 }
 
 
-// Removed Thread dependency
+// TODO: Handle Thread dependency
 
 uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
                             uint16_t                    port,
@@ -246,13 +246,13 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
         NRF_LOG_ERROR("Transport failed to initialize\r\n");
         return NRF_ERROR_INTERNAL;
     }
+    */
 
     if (mqttsn_platform_init() != NRF_SUCCESS)
     {
         NRF_LOG_ERROR("Platform failed to initialize\r\n");
         return NRF_ERROR_INTERNAL;
     }
-    */
 
     p_client->client_state = MQTTSN_CLIENT_DISCONNECTED;
     p_client->evt_handler  = evt_handler;
