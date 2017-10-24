@@ -20,7 +20,7 @@
 
 #include "mqttsn_transport.h"
 #include "mqttsn_platform.h"
-#include "mqttsn_client.h"
+#include "mqttsn_client_ble.h"
 #include "MQTTSNConnect.h"
 #include "MQTTSNPacket.h"
 #include "nrf_error.h"

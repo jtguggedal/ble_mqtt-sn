@@ -15,7 +15,7 @@
 
 #include <stdint.h>
 
-#include "mqttsn_client.h"
+#include "mqttsn_client_ble.h"
 
 typedef void (*timer_timeout_handler_t)(void * p_context);
 

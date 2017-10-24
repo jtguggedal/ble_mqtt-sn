@@ -60,6 +60,20 @@
  * @section TYPES
  **************************************************************************************************/
 
+typedef enum mqttsn_client_transport_opt_t 
+{
+    MQTTSN_CLIENT_TRANSPORT_THREAD,
+    MQTTSN_CLIENT_TRANSPORT_BLE
+} mqttsn_client_transport_opt_t;
+ 
+/**@brief Struct for transport layer information for client. */
+typedef struct mqttsn_client_transport_t
+{
+    void *                            handle;
+    mqttsn_client_transport_opt_t     type;
+} mqttsn_client_transport_t;
+
+
 /**@brief Port identification information. */
 typedef uint16_t mqttsn_port_t;
 
@@ -246,6 +260,7 @@ struct mqttsn_client_t
     mqttsn_connect_opt_t        connect_info; /**< Connect options. */
     mqttsn_packet_queue_t       packet_queue; /**< Packet queue. */
     mqttsn_client_evt_handler_t evt_handler;  /**< Event handler. */
+    mqttsn_client_transport_t   transport;
 };
 
 
@@ -265,7 +280,7 @@ struct mqttsn_client_t
  */ // TODO: Not all of it necessary for BLE
 uint32_t mqttsn_client_init(mqttsn_client_t             * p_client,
                             uint16_t                      port,
-                            mqttsn_client_evt_handler_t   evt_handler
+                            mqttsn_client_evt_handler_t   evt_handler,
                             const void                  * p_transport_context);
 
 /**@brief Searches gateway.  
@@ -288,9 +303,9 @@ uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client);
  * @return       NRF_SUCCESS if the connection request has been sent successfully.
  *               Otherwise error code is returned.
  */ // TODO: Not all of it necessary for BLE
-uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,
+uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,/*
                                mqttsn_remote_t      * p_remote,
-                               uint8_t                gateway_id,
+                               uint8_t                gateway_id,*/
                                mqttsn_connect_opt_t * p_options);
 
 

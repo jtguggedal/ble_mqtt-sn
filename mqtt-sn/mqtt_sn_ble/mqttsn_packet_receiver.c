@@ -190,7 +190,7 @@ static uint32_t connack_handle(mqttsn_client_t * p_client,
         return NRF_ERROR_INTERNAL;
     }
     
-    // Fix: Moved declarations out of switch to avoid warnings
+    // Change: Moved declarations out of switch to avoid compile warnings
     mqttsn_event_t evt_rc;
     mqttsn_event_t evt_acc;
 

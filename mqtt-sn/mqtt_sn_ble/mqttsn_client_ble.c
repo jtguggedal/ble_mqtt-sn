@@ -10,7 +10,7 @@
  *
  */
 
-#include "mqttsn_client.h"
+#include "mqttsn_client_ble.h"
 #include "mqttsn_packet_internal.h"
 #include "mem_manager.h"
 
@@ -224,8 +224,8 @@ static void keep_alive_transmission_attempt(mqttsn_client_t * p_client)
 
 uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
                             uint16_t                    port,
-                            mqttsn_client_evt_handler_t evt_handler
-                            /*const void                * p_transport_context*/)
+                            mqttsn_client_evt_handler_t evt_handler,
+                            const void                * p_transport_context)
 {
     NULL_PARAM_CHECK(p_client);
     NULL_PARAM_CHECK(evt_handler);
@@ -246,13 +246,13 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
         NRF_LOG_ERROR("Transport failed to initialize\r\n");
         return NRF_ERROR_INTERNAL;
     }
+    */
 
     if (mqttsn_platform_init() != NRF_SUCCESS)
     {
         NRF_LOG_ERROR("Platform failed to initialize\r\n");
         return NRF_ERROR_INTERNAL;
     }
-    */
 
     p_client->client_state = MQTTSN_CLIENT_DISCONNECTED;
     p_client->evt_handler  = evt_handler;
@@ -260,7 +260,7 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
     return err_code;
 }
 
-/*
+
 uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client)
 {
     NULL_PARAM_CHECK(p_client);
@@ -269,10 +269,12 @@ uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client)
         return NRF_ERROR_FORBIDDEN;
     }
 
+    /*
     if (!is_disconnected(p_client))
     {
         return NRF_ERROR_INVALID_STATE;
     }
+    */
 
     uint16_t rnd_jitter = mqttsn_platform_rand(MQTTSN_SEARCH_GATEWAY_MAX_DELAY_IN_MS);
     mqttsn_platform_timer_start(p_client, mqttsn_platform_timer_set_in_ms(rnd_jitter));
@@ -280,18 +282,15 @@ uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client)
 
     return NRF_SUCCESS;
 }
-*/
+
 
 uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,
-                               mqttsn_remote_t      * p_remote,
-                               uint8_t                gateway_id,
                                mqttsn_connect_opt_t * p_options)
 {
     NULL_PARAM_CHECK(p_client);
-    NULL_PARAM_CHECK(p_remote);
     NULL_PARAM_CHECK(p_options);
 
-    if (gateway_id == 0 || p_options->alive_duration == 0 || p_options->client_id_len == 0)
+    if (p_options->alive_duration == 0 || p_options->client_id_len == 0)
     {
         return NRF_ERROR_NULL;
     }
@@ -308,13 +307,11 @@ uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,
 
     if (!is_eligible_for_establishing_connection(p_client))
     {
-        return NRF_ERROR_INVALID_STATE;
+        //return NRF_ERROR_INVALID_STATE;
     }
 
-    memset(&(p_client->gateway_info.addr), 0, sizeof(p_client->gateway_info.addr));
-    memcpy(&(p_client->gateway_info.addr), p_remote, sizeof(p_client->gateway_info.addr));
-
-    p_client->gateway_info.id = gateway_id;
+    //memset(&(p_client->gateway_info.addr), 0, sizeof(p_client->gateway_info.addr));
+    //memcpy(&(p_client->gateway_info.addr), p_remote, sizeof(p_client->gateway_info.addr));
 
     connect_info_init(p_client, p_options);
 

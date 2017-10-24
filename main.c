@@ -71,8 +71,9 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 
-
-#include "mqttsn_client.h"
+#include "mem_manager.h"
+#include "mqttsn_client_ble.h"
+#include "mqttsn_packet_internal.h"
 
 
 #define APP_BLE_CONN_CFG_TAG            1                                           /**< A tag identifying the SoftDevice BLE configuration. */
@@ -104,7 +105,7 @@
 #define MQTT_SN_CLIENT_ID               "vivo"
 #define MQTT_SN_CHUNK_SIZE              BLE_NUS_MAX_DATA_LEN
 
-static volatile bool connected = false;
+static volatile bool connected_to_forwarder = false;
 
 BLE_NUS_DEF(m_nus);                                                                 /**< BLE NUS service instance. */
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
@@ -126,6 +127,17 @@ static mqttsn_topic_t       m_topic            =                            /**<
     .p_topic_name = (unsigned char *)m_topic_name,
     .topic_id     = 0,
 };
+
+static uint8_t test_data = 0;
+
+void publish_data() {
+    uint8_t test_data_buf[10];
+    sprintf(test_data_buf, "Data: %d", test_data);
+    test_data++;
+    mqttsn_client_publish(&m_client, m_topic.topic_id, (const uint8_t *)&test_data_buf, sizeof(test_data_buf), &m_msg_id);
+}
+
+
 
 /*
 typedef struct
@@ -174,15 +186,22 @@ static void gateway_info_callback(mqttsn_event_t * p_event)
     m_gateway_found = true;
     m_gateway_addr  = *(p_event->event_data.connected.p_gateway_addr);
     m_gateway_id    = p_event->event_data.connected.gateway_id;
-     
+
+    mqttsn_client_connect(&m_client, &m_connect_opt);
+}
+
+void client_options_set(void)
+{
     m_connect_opt.alive_duration = MQTTSN_DEFAULT_ALIVE_DURATION,
     m_connect_opt.clean_session  = MQTTSN_DEFAULT_CLEAN_SESSION_FLAG,
     m_connect_opt.will_flag      = MQTTSN_DEFAULT_WILL_FLAG,
-    m_connect_opt.client_id_len  = strlen(m_client_id),
+    m_connect_opt.client_id_len  = strlen(m_client_id);
+
+    m_client.transport.type   = MQTTSN_CLIENT_TRANSPORT_BLE;
+    m_client.transport.handle = &m_nus;
+    m_client.client_state = MQTTSN_CLIENT_SEARCHING_GATEWAY;
 
     memcpy(m_connect_opt.p_client_id,  (unsigned char *)m_client_id,  m_connect_opt.client_id_len);
-
-    mqttsn_client_connect(&m_client, &m_gateway_addr, m_gateway_id, &m_connect_opt);
 }
 
 /**@brief Processes CONNACK message from a gateway.
@@ -264,7 +283,7 @@ void mqttsn_evt_handler(mqttsn_client_t * p_client, mqttsn_event_t * p_event)
 
 static void mqttsn_init(void)
 {
-    mqttsn_client_init(&m_client, MQTTSN_DEFAULT_CLIENT_PORT, &mqttsn_evt_handler);
+    mqttsn_client_init(&m_client, MQTTSN_DEFAULT_CLIENT_PORT, &mqttsn_evt_handler, NULL);
 }
 
 
@@ -449,6 +468,8 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
         mqttsn_new_data = true;
         mqttsn_receive_data();
         */
+
+        mqttsn_packet_receiver(&m_client, NULL, NULL, p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
         
         for (uint32_t i = 0; i < p_evt->params.rx_data.length; i++)
         {
@@ -605,7 +626,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = bsp_indication_set(BSP_INDICATE_CONNECTED);
             APP_ERROR_CHECK(err_code);
             m_conn_handle = p_ble_evt->evt.gap_evt.conn_handle;
-            connected = true;
+            connected_to_forwarder = true;
             break;
 
         case BLE_GAP_EVT_DISCONNECTED:
@@ -613,7 +634,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
             err_code = bsp_indication_set(BSP_INDICATE_IDLE);
             APP_ERROR_CHECK(err_code);
             m_conn_handle = BLE_CONN_HANDLE_INVALID;
-            connected = false;
+            connected_to_forwarder = false;
             break;
 
 #if defined(S132)
@@ -977,16 +998,24 @@ int main(void)
     err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
     APP_ERROR_CHECK(err_code);
 
-    
+    err_code = nrf_mem_init();
+    APP_ERROR_CHECK(err_code);
     mqttsn_init();
+    client_options_set();
 
     // Enter main loop.
     for (;;)
     {
-        if(connected) {
-            //transport_sendPacketBuffer(str, sizeof(str));
-            nrf_delay_ms(5000);
-            //mqttsn_connect();
+        if(connected_to_forwarder) {
+            if(m_client.client_state == MQTTSN_CLIENT_SEARCHING_GATEWAY)
+            {
+                mqttsn_client_connect(&m_client, &m_connect_opt);
+            }
+            else
+            {
+                publish_data();
+                nrf_delay_ms(5000);
+            }
         }
         else
             power_manage();
