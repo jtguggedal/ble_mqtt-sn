@@ -250,11 +250,16 @@ static void subscribed_callback(mqttsn_event_t * p_event)
  */
 static void received_callback(mqttsn_event_t * p_event)
 {
-    uint16_t data_len = p_event->event_data.published.packet.len;
-    char data[data_len];
-    memcpy(data, p_event->event_data.published.p_payload, data_len);
-    NRF_LOG_INFO("MQTT-SN event: Data received on topic: %s.\r\n",
-                 data);
+    const char * c_payload = p_event->event_data.published.p_payload;
+    char * payload;
+    payload = nrf_malloc(sizeof(char) * strlen(c_payload));
+    strcpy(payload, c_payload);
+
+    NRF_LOG_INFO("MQTT-SN event: Data received on topic with ID '%d': %s.\r\n",
+                  p_event->event_data.published.packet.topic.topic_id,
+                  (uint32_t)payload);
+    nrf_free(payload);
+
 }
 
 
@@ -958,6 +963,7 @@ int main(void)
             {
                 if(once)
                 {
+                    nrf_delay_ms(2000);
                     subscribe_to_data();
                     once = false;
                 }
