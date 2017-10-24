@@ -122,6 +122,13 @@ static uint16_t             m_msg_id           = 0;                         /**<
 static char                 m_client_id[]      = "jt_mqttsn";               /**< The MQTT-SN Client's ID. */
 static char                 m_topic_name[]     = "led/led3";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
 static bool                 m_gateway_found    = false;                     /**< Stores whether a gateway has been found. */
+static char                 m_sub_topic_name[] = "led/led2";
+static mqttsn_topic_t       m_sub_topic        =
+{
+    .p_topic_name = (unsigned char *)m_sub_topic_name,
+    .topic_id     = 0,
+};
+
 static mqttsn_topic_t       m_topic            =                            /**< Topic corresponding to subscriber's BSP_LED_2. */
 {
     .p_topic_name = (unsigned char *)m_topic_name,
@@ -137,20 +144,14 @@ void publish_data() {
     mqttsn_client_publish(&m_client, m_topic.topic_id, (const uint8_t *)&test_data_buf, sizeof(test_data_buf), &m_msg_id);
 }
 
-
-
-/*
-typedef struct
+void subscribe_to_data() 
 {
-    otInstance * p_ot_instance;                                             // A pointer to the OpenThread instance. 
-} application_t;
+    uint16_t data_len = strlen(m_sub_topic.p_topic_name);
+    mqttsn_client_subscribe(&m_client, m_sub_topic.p_topic_name, data_len, &m_client.message_id);
+}
 
 
-static application_t m_app =
-{
-    .p_ot_instance = NULL,
-};
-*/
+
 
 /***************************************************************************************************
  * @section MQTT-SN
@@ -232,6 +233,31 @@ static void regack_callback(mqttsn_event_t * p_event)
                  p_event->event_data.registered.packet.topic.topic_id);
 }
 
+/**@brief Processes SUBACK message from a gateway.
+ *
+ * @param[in] p_event Pointer to MQTT-SN event.
+ */
+static void subscribed_callback(mqttsn_event_t * p_event)
+{
+    m_sub_topic.topic_id = p_event->event_data.registered.packet.topic.topic_id;
+    NRF_LOG_INFO("MQTT-SN event: Topic has been subscriebd to and registered with ID: %d.\r\n",
+                 p_event->event_data.registered.packet.topic.topic_id);
+}
+
+/**@brief Processes PUBLISH message from a gateway.
+ *
+ * @param[in] p_event Pointer to MQTT-SN event.
+ */
+static void received_callback(mqttsn_event_t * p_event)
+{
+    uint16_t data_len = p_event->event_data.published.packet.len;
+    char data[data_len];
+    memcpy(data, p_event->event_data.published.p_payload, data_len);
+    NRF_LOG_INFO("MQTT-SN event: Data received on topic: %s.\r\n",
+                 data);
+}
+
+
 
 /**@brief Processes retransmission limit reached event. */
 static void timeout_callback(mqttsn_event_t * p_event)
@@ -276,6 +302,17 @@ void mqttsn_evt_handler(mqttsn_client_t * p_client, mqttsn_event_t * p_event)
             timeout_callback(p_event);
             break;
 
+        case MQTTSN_EVENT_SUBSCRIBED:
+            NRF_LOG_INFO("MQTT-SN event: Client has successfully subscribed to topic.\r\n");
+            subscribed_callback(p_event);
+            break;
+         
+        case MQTTSN_EVENT_RECEIVED:
+            NRF_LOG_INFO("MQTT-SN event: Client has received data on topic.\r\n");
+            received_callback(p_event);
+            break;
+
+
         default:
             break;
     }
@@ -287,105 +324,11 @@ static void mqttsn_init(void)
 }
 
 
-
-
-
 /** Helper functions **/
 
 uint32_t min(uint32_t a, uint32_t b) {
     return (a <= b ? a : b);
 }
-
-                   
-/*
-// Function to chop up strings longer than 18 bytes
-ret_code_t send_in_chunks(uint8_t *buffer, size_t length, size_t chunk_size)
-{
-    ret_code_t err_code;
-    uint8_t *data_array = buffer;
-    uint16_t data_len;
-    
-    while (length > 0)
-    {
-        data_len = min(length, chunk_size);
-        
-        do
-        {
-            err_code = ble_nus_string_send(&m_nus, data_array, &data_len);
-            if ( (err_code != NRF_ERROR_INVALID_STATE) && (err_code != NRF_ERROR_BUSY) )
-            {
-                APP_ERROR_CHECK(err_code);
-            }
-        } while (err_code == NRF_ERROR_BUSY);
-            
-            
-        if(length - data_len <= 0) 
-            break;
-        
-        length -= data_len;
-        data_array += data_len;
-    }
-    return err_code;
-}
-
-int transport_sendPacketBuffer(unsigned char* buf, int buflen)
-{
-    // Send over NUS
-    int rc = send_in_chunks(buf, buflen, MQTT_SN_CHUNK_SIZE);
-    return rc;
-}
-
-// Function for receiving and parsing MQTT-SN data
-void mqttsn_receive_data() {
-    //while(!mqttsn_new_data) {}
-    mqttsn_new_data = false;
-    NRF_LOG_INFO("MQTT receiver: %s", mqttsn_buffer);    
-    NRF_LOG_FLUSH();
-}
-
-
-
-int transport_getdata(unsigned char* buf, int count)
-{
-    //mqttsn_receive_data();
-
-    return mqttsn_buffer[0];
-}
-
-
-ret_code_t mqttsn_connect() {
-    MQTTSNPacket_connectData options = MQTTSNPacket_connectData_initializer;
-    options.clientID.cstring = MQTT_SN_CLIENT_ID;
-    int len = MQTTSNSerialize_connect(mqttsn_buffer, sizeof(mqttsn_buffer), &options);
-    NRF_LOG_HEXDUMP_DEBUG(mqttsn_buffer, sizeof(mqttsn_buffer));
-    NRF_LOG_FLUSH();
-   
-    return transport_sendPacketBuffer(mqttsn_buffer, len);
-}
-*/
-
-/*
-void mqttsn_connack_handler(){
-    MQTTSNPacket_read(mqttsn_buffer, sizeof(mqttsn_buffer), transport_getdata);
-    if (rc == MQTTSN_CONNACK)
-    {
-        NRF_LOG_RAW_INFO("CONNACK received");
-        NRF_LOG_FLUSH();
-        int connack_rc = -1;
-     
-        if (MQTTSNDeserialize_connack(&connack_rc, mqttsn_buffer, sizeof(mqttsn_buffer)) != 1 || connack_rc != 0)
-        {
-            return NRF_ERROR_INTERNAL;
-        }
-        else {
-            // CONNECTION OK - continue
-        }
-    } else {
-        return NRF_ERROR_INTERNAL;
-    }
-    return NRF_SUCCESS;
-}
-*/
 
 
 static uint16_t   m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
@@ -463,11 +406,6 @@ static void nus_data_handler(ble_nus_evt_t * p_evt)
         NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.");
         NRF_LOG_HEXDUMP_DEBUG(p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
         NRF_LOG_FLUSH();
-        /*
-        memcpy(mqttsn_buffer, p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
-        mqttsn_new_data = true;
-        mqttsn_receive_data();
-        */
 
         mqttsn_packet_receiver(&m_client, NULL, NULL, p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
         
@@ -846,11 +784,14 @@ void uart_event_handle(app_uart_evt_t * p_event)
                 do
                 {
                     uint16_t length = (uint16_t)index;
-                    err_code = ble_nus_string_send(&m_nus, data_array, &length);
+                    if(strcmp(data_array, "sub"))
+                        subscribe_to_data();
+
+                    /*err_code = ble_nus_string_send(&m_nus, data_array, &length);
                     if ( (err_code != NRF_ERROR_INVALID_STATE) && (err_code != NRF_ERROR_BUSY) )
                     {
                         APP_ERROR_CHECK(err_code);
-                    }
+                    }*/
                 } while (err_code == NRF_ERROR_BUSY);
 
                 index = 0;
@@ -1003,6 +944,8 @@ int main(void)
     mqttsn_init();
     client_options_set();
 
+    bool once = true;
+
     // Enter main loop.
     for (;;)
     {
@@ -1013,6 +956,11 @@ int main(void)
             }
             else
             {
+                if(once)
+                {
+                    subscribe_to_data();
+                    once = false;
+                }
                 publish_data();
                 nrf_delay_ms(5000);
             }

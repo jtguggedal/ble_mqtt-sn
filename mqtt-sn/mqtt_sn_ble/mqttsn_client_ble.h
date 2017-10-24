@@ -100,7 +100,7 @@ typedef struct mqttsn_packet_t
     uint16_t       id;                 /**< Message ID. */
     uint32_t       timeout;            /**< Time of the next retransmissions in ms (if necessary). */
     mqttsn_topic_t topic;              /**< Topic of the message. */
-} mqttsn_packet_t;
+  } mqttsn_packet_t;
 
 /**@brief Packet queueing data available for client. For internal use only */
 typedef struct mqttsn_packet_queue_t

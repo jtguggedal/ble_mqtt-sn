@@ -372,7 +372,7 @@ static uint32_t publish_handle(mqttsn_client_t * p_client,
                                   &p_payload,
                                   (int *)(&payload_len),
                                   (unsigned char *)p_data,
-                                  datalen) == 0)
+                                  datalen) != 1)
     {
         NRF_LOG_ERROR("PUBLISH packet cannot be deserialized.\r\n");
         return NRF_ERROR_INTERNAL;
@@ -390,7 +390,8 @@ static uint32_t publish_handle(mqttsn_client_t * p_client,
         .event_data.published =
             {
                 .packet    = { .id    = packet_id,
-                               .topic = topic },
+                               .topic = topic,
+                               .len   = (uint16_t)payload_len},
                 .p_payload = p_payload,
             },
     };
