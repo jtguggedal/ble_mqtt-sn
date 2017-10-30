@@ -140,8 +140,10 @@ static uint8_t test_data = 0;
 void publish_data() {
     uint8_t test_data_buf[10];
     sprintf(test_data_buf, "Data: %d", test_data);
+    uint8_t buf[strlen(test_data_buf)];
+    memcpy(buf, test_data_buf, strlen(test_data_buf));
+    mqttsn_client_publish(&m_client, m_topic.topic_id, (const uint8_t *)&buf, sizeof(buf), &m_msg_id);
     test_data++;
-    mqttsn_client_publish(&m_client, m_topic.topic_id, (const uint8_t *)&test_data_buf, sizeof(test_data_buf), &m_msg_id);
 }
 
 void subscribe_to_data() 

@@ -1,7 +1,9 @@
 <!DOCTYPE CrossStudio_Session_File>
 <session>
  <Bookmarks/>
- <Breakpoints groups="Breakpoints" active_group="Breakpoints"/>
+ <Breakpoints groups="Breakpoints" active_group="Breakpoints">
+  <Exceptions set="MemManage;UsageFault_Coprocessor;UsageFault_CheckingError;UsageFault_StateError;BusFault;ExceptionEntryReturnFault;HardFault"/>
+ </Breakpoints>
  <ExecutionProfileWindow/>
  <FrameBufferWindow>
   <FrameBufferWindow bufferHeight="-1" addressSpace="" addressText="" bufferWidth="-1"/>
@@ -25,6 +27,9 @@
   <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;Device"/>
   <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;MQTT-SN_BLE"/>
   <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;MQTT-SN_Paho"/>
+  <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;nRF_BLE_Services"/>
+  <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;nRF_Drivers"/>
+  <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;nRF_Libraries"/>
   <ProjectSessionItem path="ble_app_uart_pca10040_s132;ble_app_uart_pca10040_s132;Segger Startup Files"/>
  </Project>
  <Register1>
@@ -55,21 +60,23 @@
   <Watches active="0" update="Never"/>
  </Watch4>
  <Files>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="110" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/device/nrf52.h" debugPath="../../../external/SDK/components/device/nrf52.h" selected="0" top="88" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="123" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" debugPath="../../../main.c" selected="0" top="87" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="573" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.c" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.c" selected="0" top="507" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="434" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.h" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.h" selected="0" top="368" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="17" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/paho/MQTTSNConnectClient.c" debugPath="../../../mqtt-sn/paho/MQTTSNConnectClient.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="17" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/paho/MQTTSNPacket.c" debugPath="../../../mqtt-sn/paho/MQTTSNPacket.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="121" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/paho/MQTTSNPacket.h" debugPath="../../../mqtt-sn/paho/MQTTSNPacket.h" selected="0" top="96" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="32" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/paho/MQTTSNConnect.h" debugPath="../../../mqtt-sn/paho/MQTTSNConnect.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="13" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="44" y="289" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.h" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.h" selected="0" top="28" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/paho/MQTTSNConnectServer.c" debugPath="../../../mqtt-sn/paho/MQTTSNConnectServer.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_internal.h" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_internal.h" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="209" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.c" selected="0" top="173" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="5" y="27" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_fifo.c" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_fifo.c" selected="0" top="0" codecName="Default"/>
-  <SessionOpenFile windowGroup="DockEditLeft" x="27" y="18" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport_ot.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport_ot.c" selected="1" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="37" y="294" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../main.c" debugPath="../../../main.c" selected="0" top="262" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="322" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.c" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.c" selected="0" top="273" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="12" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_fifo.c" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_fifo.c" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="12" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_internal.h" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_internal.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="34" y="40" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_sender.c" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_packet_sender.c" selected="0" top="17" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="76" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/libraries/mem_manager/mem_manager.h" debugPath="../../../external/SDK/components/libraries/mem_manager/mem_manager.h" selected="0" top="45" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="16" y="17" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_platform.h" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_platform.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="0" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.h" debugPath="../../../mqtt-sn/mqtt_sn_client/mqttsn_client.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="15" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_platform.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_platform.c" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="24" y="104" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport_ble.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport_ble.c" selected="0" top="60" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="20" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_internal.h" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_internal.h" selected="0" top="0" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="44" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport.h" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport.h" selected="0" top="12" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="160" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/ble/ble_services/ble_nus/ble_nus.h" debugPath="../../../external/SDK/components/ble/ble_services/ble_nus/ble_nus.h" selected="0" top="136" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="312" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/ble/ble_services/ble_nus/ble_nus.c" debugPath="../../../external/SDK/components/ble/ble_services/ble_nus/ble_nus.c" selected="0" top="280" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="269" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../external/SDK/components/softdevice/s132/headers/ble_gatts.h" debugPath="../../../external/SDK/components/softdevice/s132/headers/ble_gatts.h" selected="0" top="237" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="724" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_receiver.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_receiver.c" selected="0" top="707" codecName="Default"/>
+  <SessionOpenFile windowGroup="DockEditLeft" x="0" y="271" useTextEdit="1" useBinaryEdit="0" left="0" path="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.c" debugPath="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.c" selected="1" top="222" codecName="Default"/>
  </Files>
  <ARMCrossStudioWindow activeProject="ble_app_uart_pca10040_s132" fileDialogDefaultFilter="" autoConnectTarget="J-Link" buildConfiguration="Debug" debugSearchFileMap="" fileDialogInitialDirectory="C:/github/ble_mqtt-sn/mqtt-sn/mqtt_sn_ble" debugSearchPath="" autoConnectCapabilities="3199"/>
 </session>
