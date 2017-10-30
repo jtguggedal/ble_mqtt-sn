@@ -10,8 +10,6 @@
  *
  */
 
-#include "ble_nus.h"
-
 #include "mqttsn_packet_internal.h"
 
 #define MQTTSN_PACKET_SEARCHGW_LENGTH     3
@@ -41,27 +39,9 @@ static uint16_t next_packet_id_get(mqttsn_client_t * p_client)
 }
 
 
-/**@brief Sends MQTT-SN message over BLE.  
- *
- * @param[inout] p_client    Pointer to initialized and connected client.   TODO: Is it necessarily connected yet?
- * @param[in]    p_data      Buffered data to send.
- * @param[in]    datalen     Length of the buffered data.
- *
- * @return       NRF_SUCCESS if the message has been sent successfully.
- *               Otherwise error code is returned.
- */
-static uint32_t mqttsn_packet_sender_send_ble(  mqttsn_client_t     * p_client,
-                                                uint8_t             * p_data,
-                                                uint16_t              datalen)
-{
-    //return mqttsn_transport_write_ble(p_client, p_remote, p_data, datalen);
-
-    return ble_nus_string_send(p_client->transport.handle, p_data, &datalen);
-}
-
 /**@brief Sends MQTT-SN message.  
  *
- * @param[inout] p_client    Pointer to initialized and connected client.   TODO: Is it necessarily connected yet?
+ * @param[inout] p_client    Pointer to initialized and connected client. 
  * @param[in]    p_remote    Pointer to remote endpoint.
  * @param[in]    p_data      Buffered data to send.
  * @param[in]    datalen     Length of the buffered data.
@@ -74,18 +54,8 @@ static uint32_t mqttsn_packet_sender_send(mqttsn_client_t       * p_client,
                                           const uint8_t         * p_data,
                                           uint16_t                datalen)
 {
-    // TODO: must include some sort of generic function to allow sending over different transport layers
-    switch(p_client->transport.type)
-    {
-        case MQTTSN_CLIENT_TRANSPORT_THREAD:
-            return mqttsn_transport_write(p_client, p_remote, p_data, datalen);
-            break;
-        case MQTTSN_CLIENT_TRANSPORT_BLE:
-            return mqttsn_packet_sender_send_ble(p_client, (uint8_t *)p_data, datalen);
-            break;
-    }
 
-    return NRF_ERROR_INTERNAL;
+    return mqttsn_transport_write(p_client, p_remote, p_data, datalen);
 }
 
 uint32_t mqttsn_packet_sender_retransmit(mqttsn_client_t       * p_client,

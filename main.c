@@ -111,6 +111,14 @@ BLE_NUS_DEF(m_nus);                                                             
 NRF_BLE_GATT_DEF(m_gatt);                                                           /**< GATT module instance. */
 BLE_ADVERTISING_DEF(m_advertising);                                                 /**< Advertising module instance. */
 
+static uint16_t   m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
+static uint16_t   m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;            /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
+static ble_uuid_t m_adv_uuids[]          =                                          /**< Universally unique service identifier. */
+{
+    {BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}
+};
+
+
 /** MQTT-SN **/
 
 static mqttsn_client_t      m_client;                                       /**< An MQTT-SN client instance. */
@@ -189,6 +197,7 @@ static void gateway_info_callback(mqttsn_event_t * p_event)
     m_gateway_found = true;
     m_gateway_addr  = *(p_event->event_data.connected.p_gateway_addr);
     m_gateway_id    = p_event->event_data.connected.gateway_id;
+    m_client.client_state = MQTTSN_CLIENT_GATEWAY_FOUND;
 
     mqttsn_client_connect(&m_client, &m_connect_opt);
 }
@@ -330,20 +339,6 @@ static void mqttsn_init(void)
     mqttsn_client_init(&m_client, MQTTSN_DEFAULT_CLIENT_PORT, &mqttsn_evt_handler, NULL);
 }
 
-
-/** Helper functions **/
-
-uint32_t min(uint32_t a, uint32_t b) {
-    return (a <= b ? a : b);
-}
-
-
-static uint16_t   m_conn_handle          = BLE_CONN_HANDLE_INVALID;                 /**< Handle of the current connection. */
-static uint16_t   m_ble_nus_max_data_len = BLE_GATT_ATT_MTU_DEFAULT - 3;            /**< Maximum length of data (in bytes) that can be transmitted to the peer by the Nordic UART service module. */
-static ble_uuid_t m_adv_uuids[]          =                                          /**< Universally unique service identifier. */
-{
-    {BLE_UUID_NUS_SERVICE, NUS_SERVICE_UUID_TYPE}
-};
 
 
 /**@brief Function for assert macro callback.
@@ -922,8 +917,6 @@ int main(void)
 {
     uint32_t err_code;
     bool     erase_bonds;
-    
-    uint8_t str[] = "UART test with very, very long text, hello hello \n";
 
     // Initialize.
     err_code = app_timer_init();
@@ -959,18 +952,17 @@ int main(void)
         if(connected_to_forwarder) {
             if(m_client.client_state == MQTTSN_CLIENT_SEARCHING_GATEWAY)
             {
-                mqttsn_client_connect(&m_client, &m_connect_opt);
+                 mqttsn_client_search_gateway(&m_client);
             }
             else
             {
                 if(once)
                 {
-                    nrf_delay_ms(2000);
+                    nrf_delay_ms(8000);
                     subscribe_to_data();
                     once = false;
                 }
                 publish_data();
-                nrf_delay_ms(5000);
             }
         }
         else

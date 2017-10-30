@@ -310,7 +310,7 @@ uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,
         //return NRF_ERROR_INVALID_STATE;
     }
 
-    //memset(&(p_client->gateway_info.addr), 0, sizeof(p_client->gateway_info.addr));
+    memset(&(p_client->gateway_info.addr), 0, sizeof(p_client->gateway_info.addr));
     //memcpy(&(p_client->gateway_info.addr), p_remote, sizeof(p_client->gateway_info.addr));
 
     connect_info_init(p_client, p_options);
