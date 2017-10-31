@@ -10,7 +10,7 @@
  *
  */
 
-#include "mqttsn_client_ble.h"
+#include "mqttsn_client.h"
 #include "mqttsn_packet_internal.h"
 #include "mem_manager.h"
 
@@ -268,13 +268,12 @@ uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client)
     {
         return NRF_ERROR_FORBIDDEN;
     }
-
-    /*
+/*
     if (!is_disconnected(p_client))
     {
         return NRF_ERROR_INVALID_STATE;
     }
-    */
+*/
 
     uint16_t rnd_jitter = mqttsn_platform_rand(MQTTSN_SEARCH_GATEWAY_MAX_DELAY_IN_MS);
     mqttsn_platform_timer_start(p_client, mqttsn_platform_timer_set_in_ms(rnd_jitter));
@@ -307,11 +306,12 @@ uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,
 
     if (!is_eligible_for_establishing_connection(p_client))
     {
-        //return NRF_ERROR_INVALID_STATE;
+        return NRF_ERROR_INVALID_STATE;
     }
 
     memset(&(p_client->gateway_info.addr), 0, sizeof(p_client->gateway_info.addr));
-    //memcpy(&(p_client->gateway_info.addr), p_remote, sizeof(p_client->gateway_info.addr));
+    // TODO: Fix for p_remote (that originally was an argument in function call) so it can handle both BLE and thread
+    //memcpy(&(p_client->gateway_info.addr), p_remote, sizeof(p_client->gateway_info.addr));  
 
     connect_info_init(p_client, p_options);
 

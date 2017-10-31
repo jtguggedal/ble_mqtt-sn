@@ -72,7 +72,7 @@
 #include "nrf_log_default_backends.h"
 
 #include "mem_manager.h"
-#include "mqttsn_client_ble.h"
+#include "mqttsn_client.h"
 #include "mqttsn_packet_internal.h"
 
 
@@ -80,7 +80,7 @@
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
 
-#define DEVICE_NAME                     "jt_mqtt"                               /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "mqttsn_ble"                                /**< Name of device. Will be included in the advertising data. */
 #define NUS_SERVICE_UUID_TYPE           BLE_UUID_TYPE_VENDOR_BEGIN                  /**< UUID type for the Nordic UART Service (vendor specific). */
 
 #define APP_BLE_OBSERVER_PRIO           1                                           /**< Application's BLE observer priority. You shouldn't need to modify this value. */
@@ -100,10 +100,6 @@
 
 #define UART_TX_BUF_SIZE                256                                         /**< UART TX buffer size. */
 #define UART_RX_BUF_SIZE                256                                         /**< UART RX buffer size. */
-
-
-#define MQTT_SN_CLIENT_ID               "vivo"
-#define MQTT_SN_CHUNK_SIZE              BLE_NUS_MAX_DATA_LEN
 
 static volatile bool connected_to_forwarder = false;
 
@@ -127,10 +123,10 @@ static uint8_t              m_gateway_id;                                   /**<
 static mqttsn_connect_opt_t m_connect_opt;                                  /**< Connect options for the MQTT-SN client. */
 static uint8_t              m_led_state        = 0;                         /**< Previously sent BSP_LED_2 command. */
 static uint16_t             m_msg_id           = 0;                         /**< Message ID thrown with MQTTSN_EVENT_TIMEOUT. */
-static char                 m_client_id[]      = "jt_mqttsn";               /**< The MQTT-SN Client's ID. */
-static char                 m_topic_name[]     = "led/led3";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
+static char                 m_client_id[]      = "mqttsn_ble";               /**< The MQTT-SN Client's ID. */
+static char                 m_topic_name[]     = "topicgroup/sometopic1";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
 static bool                 m_gateway_found    = false;                     /**< Stores whether a gateway has been found. */
-static char                 m_sub_topic_name[] = "led/led2";
+static char                 m_sub_topic_name[] = "topicgroup/sometopic2";
 static mqttsn_topic_t       m_sub_topic        =
 {
     .p_topic_name = (unsigned char *)m_sub_topic_name,
@@ -145,6 +141,8 @@ static mqttsn_topic_t       m_topic            =                            /**<
 
 static uint8_t test_data = 0;
 
+
+// Function to publish data through MQTT-SN
 void publish_data() {
     uint8_t test_data_buf[10];
     sprintf(test_data_buf, "Data: %d", test_data);
@@ -154,12 +152,12 @@ void publish_data() {
     test_data++;
 }
 
+// Function to subscribe to data over MQTT-SN
 void subscribe_to_data() 
 {
     uint16_t data_len = strlen(m_sub_topic.p_topic_name);
     mqttsn_client_subscribe(&m_client, m_sub_topic.p_topic_name, data_len, &m_client.message_id);
 }
-
 
 
 
@@ -225,6 +223,7 @@ static void connected_callback(void)
     light_on();
     uint16_t topic_name_len = strlen(m_topic_name);
     mqttsn_client_topic_register(&m_client, m_topic.p_topic_name, topic_name_len, &m_msg_id);
+    subscribe_to_data();
 }
 
 /**@brief Processes DISCONNECT message from a gateway. */
@@ -950,20 +949,16 @@ int main(void)
     for (;;)
     {
         if(connected_to_forwarder) {
-            if(m_client.client_state == MQTTSN_CLIENT_SEARCHING_GATEWAY)
+            if( (m_client.client_state == MQTTSN_CLIENT_SEARCHING_GATEWAY) ||
+                (m_client.client_state == MQTTSN_CLIENT_DISCONNECTED))
             {
-                 mqttsn_client_search_gateway(&m_client);
+                mqttsn_client_search_gateway(&m_client);
             }
             else
             {
-                if(once)
-                {
-                    nrf_delay_ms(8000);
-                    subscribe_to_data();
-                    once = false;
-                }
                 publish_data();
             }
+            nrf_delay_ms(5000);
         }
         else
             power_manage();

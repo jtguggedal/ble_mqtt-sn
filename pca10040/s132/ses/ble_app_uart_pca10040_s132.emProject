@@ -126,12 +126,13 @@
       <file file_name="../../../mqtt-sn/paho/MQTTSNUnsubscribeServer.c" />
     </folder>
     <folder Name="MQTT-SN_BLE">
-      <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.c" />
       <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_fifo.c" />
       <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_receiver.c" />
       <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_packet_sender.c" />
       <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_platform.c" />
       <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport_ble.c" />
+      <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_transport.c" />
+      <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client.c" />
     </folder>
     <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.h" />
   </project>

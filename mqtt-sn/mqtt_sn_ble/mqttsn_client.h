@@ -77,7 +77,7 @@ typedef struct mqttsn_client_transport_t
 /**@brief Port identification information. */
 typedef uint16_t mqttsn_port_t;
 
-/**@brief Remote endpoint. */   // TODO: not necessary for BLE
+/**@brief Remote endpoint. */ 
 typedef struct mqttsn_remote_t
 {
     uint8_t  addr[IPV6_ADDR_BYTE_LENGTH]; /**< IPv6 address. */
@@ -109,7 +109,7 @@ typedef struct mqttsn_packet_queue_t
     uint8_t         num_of_elements;                       /**< Current number of elements in the queue. */
 } mqttsn_packet_queue_t;
 
-/**@brief State of client. For internal use only */   // TODO: Not all of it necessary for BLE
+/**@brief State of client. For internal use only */ 
 typedef enum mqttsn_client_state_t
 {
     MQTTSN_CLIENT_IDLE = 0,                /**< Client idle. */
@@ -123,7 +123,7 @@ typedef enum mqttsn_client_state_t
     MQTTSN_CLIENT_ASLEEP,                  /**< Client is in sleep mode. */
 } mqttsn_client_state_t;
 
-/**@brief MQTT-SN gateway information. */ // TODO: Not all of it necessary for BLE
+/**@brief MQTT-SN gateway information. */ 
 typedef struct mqttsn_gw_info_t
 {
     uint8_t         id;   /**< Gateway ID. */
@@ -184,7 +184,7 @@ typedef enum mqttsn_ack_error_t
     MQTTSN_PACKET_INCORRECT     /**< Unknown error. */
 } mqttsn_ack_error_t;
 
-/**@brief MQTT-SN event data when client received GWINFO message. */  // TODO: Not all of it necessary for BLE
+/**@brief MQTT-SN event data when client received GWINFO message. */ 
 typedef struct mqttsn_event_gwinfo_t
 {
     uint8_t           gateway_id;     /**< Gateway ID. */
@@ -250,7 +250,7 @@ typedef void (*mqttsn_client_evt_handler_t)(mqttsn_client_t * p_client, mqttsn_e
 /**@brief MQTT-SN Client.
  *
  * @details Below parameters are for internal use only.   
- */ // TODO: Not all of it necessary for BLE
+ */ 
 struct mqttsn_client_t
 {
     uint16_t                    message_id;   /**< Current message ID. */
@@ -277,7 +277,7 @@ struct mqttsn_client_t
  *
  * @retval     NRF_SUCCESS         If the initialization has been successful.
  * @retval     NRF_ERROR_INTERNAL  Otherwise.
- */ // TODO: Not all of it necessary for BLE
+ */ // 
 uint32_t mqttsn_client_init(mqttsn_client_t             * p_client,
                             uint16_t                      port,
                             mqttsn_client_evt_handler_t   evt_handler,
@@ -289,7 +289,7 @@ uint32_t mqttsn_client_init(mqttsn_client_t             * p_client,
  *
  * @return       NRF_SUCCESS if the gateway info request has been sent successfully.
  *               Otherwise error code is returned.
- */   // TODO: Not all of it necessary for BLE
+ */ 
 uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client);
 
 
@@ -302,7 +302,7 @@ uint32_t mqttsn_client_search_gateway(mqttsn_client_t * p_client);
  *
  * @return       NRF_SUCCESS if the connection request has been sent successfully.
  *               Otherwise error code is returned.
- */ // TODO: Not all of it necessary for BLE
+ */
 uint32_t mqttsn_client_connect(mqttsn_client_t      * p_client,/*
                                mqttsn_remote_t      * p_remote,
                                uint8_t                gateway_id,*/

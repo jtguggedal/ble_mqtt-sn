@@ -14,7 +14,7 @@
 #include "mqttsn_platform.h"
 #include "mqttsn_packet_internal.h"
 #include "app_timer.h"
-//#include "openthread/platform/random.h"
+//#include "openthread/platform/random.h"   // Change: removed dependency of openthread library
 
 /* Available timer is 17-bit. 1FFFF is the biggest 17-bit long number. */
 #define MQTTSN_PLATFORM_TIMER_MAX_MS 0x1ffff
@@ -81,7 +81,7 @@ uint32_t mqttsn_platform_timer_set_in_ms(uint32_t timeout_ms)
 }
 
 
-// Change: Removed thread dependency for random number generation
+// Change: Removed openthread dependency for random number generation
 uint16_t mqttsn_platform_rand(uint16_t max_val)
 {
     uint8_t rng_buf[4];
