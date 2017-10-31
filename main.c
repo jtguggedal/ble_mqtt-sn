@@ -80,7 +80,7 @@
 
 #define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
 
-#define DEVICE_NAME                     "mqttsn_ble"                                /**< Name of device. Will be included in the advertising data. */
+#define DEVICE_NAME                     "jt"                                /**< Name of device. Will be included in the advertising data. */
 #define NUS_SERVICE_UUID_TYPE           BLE_UUID_TYPE_VENDOR_BEGIN                  /**< UUID type for the Nordic UART Service (vendor specific). */
 
 #define APP_BLE_OBSERVER_PRIO           1                                           /**< Application's BLE observer priority. You shouldn't need to modify this value. */
@@ -207,9 +207,9 @@ void client_options_set(void)
     m_connect_opt.will_flag      = MQTTSN_DEFAULT_WILL_FLAG,
     m_connect_opt.client_id_len  = strlen(m_client_id);
 
-    m_client.transport.type   = MQTTSN_CLIENT_TRANSPORT_BLE;
-    m_client.transport.handle = &m_nus;
-    m_client.client_state = MQTTSN_CLIENT_SEARCHING_GATEWAY;
+    m_client.transport.type         = MQTTSN_CLIENT_TRANSPORT_BLE;
+    m_client.transport.handle.p_nus = &m_nus;
+    m_client.client_state           = MQTTSN_CLIENT_SEARCHING_GATEWAY;
 
     memcpy(m_connect_opt.p_client_id,  (unsigned char *)m_client_id,  m_connect_opt.client_id_len);
 }
@@ -386,51 +386,6 @@ static void gap_params_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-
-/**@brief Function for handling the data from the Nordic UART Service.
- *
- * @details This function will process the data received from the Nordic UART BLE Service and send
- *          it to the UART module.
- *
- * @param[in] p_nus    Nordic UART Service structure.
- * @param[in] p_data   Data to be send to UART module.
- * @param[in] length   Length of the data.
- */
-/**@snippet [Handling the data received over BLE] */
-static void nus_data_handler(ble_nus_evt_t * p_evt)
-{
-
-    if (p_evt->type == BLE_NUS_EVT_RX_DATA)
-    {
-        uint32_t err_code;
-
-        NRF_LOG_DEBUG("Received data from BLE NUS. Writing data on UART.");
-        NRF_LOG_HEXDUMP_DEBUG(p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
-        NRF_LOG_FLUSH();
-
-        mqttsn_packet_receiver(&m_client, NULL, NULL, p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
-        
-        for (uint32_t i = 0; i < p_evt->params.rx_data.length; i++)
-        {
-            do
-            {
-                err_code = app_uart_put(p_evt->params.rx_data.p_data[i]);
-                if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_BUSY))
-                {
-                    NRF_LOG_ERROR("Failed receiving NUS message. Error 0x%x. ", err_code);
-                    APP_ERROR_CHECK(err_code);
-                }
-            } while (err_code == NRF_ERROR_BUSY);
-        }
-        if (p_evt->params.rx_data.p_data[p_evt->params.rx_data.length-1] == '\r')
-        {
-            while (app_uart_put('\n') == NRF_ERROR_BUSY);
-        }
-        
-    }
-
-}
-/**@snippet [Handling the data received over BLE] */
 
 
 /**@brief Function for initializing services that will be used by the application.
@@ -788,11 +743,6 @@ void uart_event_handle(app_uart_evt_t * p_event)
                     if(strcmp(data_array, "sub"))
                         subscribe_to_data();
 
-                    /*err_code = ble_nus_string_send(&m_nus, data_array, &length);
-                    if ( (err_code != NRF_ERROR_INVALID_STATE) && (err_code != NRF_ERROR_BUSY) )
-                    {
-                        APP_ERROR_CHECK(err_code);
-                    }*/
                 } while (err_code == NRF_ERROR_BUSY);
 
                 index = 0;
@@ -940,8 +890,8 @@ int main(void)
 
     err_code = nrf_mem_init();
     APP_ERROR_CHECK(err_code);
-    mqttsn_init();
     client_options_set();
+    mqttsn_init();
 
     bool once = true;
 
@@ -958,7 +908,7 @@ int main(void)
             {
                 publish_data();
             }
-            nrf_delay_ms(5000);
+            nrf_delay_ms(10000);
         }
         else
             power_manage();

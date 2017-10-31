@@ -14,6 +14,7 @@
 #define MQTTSN_TRANSPORT_H
 
 #include "mqttsn_client.h"
+#include "mqttsn_transport_ble.h"
 
 
 /**@brief Initializes the MQTT-SN client's transport.  

@@ -14,6 +14,7 @@
 #define MQTTSN_TRANSPORT_BLE_H
 
 #include "mqttsn_client.h"
+#include "ble_nus.h"
 
 
 /**@brief Sends MQTT-SN message over BLE.  
@@ -30,5 +31,6 @@ uint32_t mqttsn_transport_write_ble(  mqttsn_client_t     * p_client,
                                       uint8_t             * p_data,
                                       uint16_t              datalen);
 
+uint32_t mqttsn_transport_ble_init(mqttsn_client_t * p_client);
 
-#endif // MQTTSN_TRANSPORT_H
+#endif // MQTTSN_TRANSPORT_BLE_H

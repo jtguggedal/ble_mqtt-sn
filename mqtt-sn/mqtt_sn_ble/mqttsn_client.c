@@ -12,6 +12,7 @@
 
 #include "mqttsn_client.h"
 #include "mqttsn_packet_internal.h"
+#include "mqttsn_transport.h"
 #include "mem_manager.h"
 
 #include <stdint.h>
@@ -240,13 +241,13 @@ uint32_t mqttsn_client_init(mqttsn_client_t           * p_client,
         return NRF_ERROR_INTERNAL;
     }
 
-    /*
+    
     if (mqttsn_transport_init(p_client, port, p_transport_context) != NRF_SUCCESS)
     {
         NRF_LOG_ERROR("Transport failed to initialize\r\n");
         return NRF_ERROR_INTERNAL;
     }
-    */
+    
 
     if (mqttsn_platform_init() != NRF_SUCCESS)
     {

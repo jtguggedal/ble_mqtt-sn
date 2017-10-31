@@ -60,7 +60,16 @@ uint32_t mqttsn_transport_read(void                   * p_context,
 
 uint32_t mqttsn_transport_init(mqttsn_client_t * p_client, uint16_t port, const void * p_context)
 {
-
+    switch(p_client->transport.type)
+    {
+        case MQTTSN_CLIENT_TRANSPORT_THREAD:
+            //return mqttsn_transport_write(p_client, p_remote, p_data, datalen);
+            break;
+        case MQTTSN_CLIENT_TRANSPORT_BLE:
+            return mqttsn_transport_ble_init(p_client);
+            break;
+    }
+    return NRF_ERROR_INTERNAL;
 }
 
 

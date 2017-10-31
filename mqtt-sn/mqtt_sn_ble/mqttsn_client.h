@@ -16,6 +16,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "ble_nus.h"    // TODO: fix these dependencies
+
 
 /***************************************************************************************************
  * @section DEFINES
@@ -69,7 +71,10 @@ typedef enum mqttsn_client_transport_opt_t
 /**@brief Struct for transport layer information for client. */
 typedef struct mqttsn_client_transport_t
 {
-    void *                            handle;
+    union 
+    {
+        ble_nus_t * p_nus;
+    } handle;
     mqttsn_client_transport_opt_t     type;
 } mqttsn_client_transport_t;
 

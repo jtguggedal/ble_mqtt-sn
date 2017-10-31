@@ -16,7 +16,6 @@
 #include "mem_manager.h"
 #include "nrf_log.h"
 #include "nrf_error.h"
-#include "ble_nus.h"
 
 #include <stdint.h>
 
@@ -26,18 +25,45 @@
         return (NRF_ERROR_NULL);                                                                   \
     }
 
-
+mqttsn_client_t * ptr_client;
 
 uint32_t mqttsn_transport_write_ble(  mqttsn_client_t     * p_client,
-                                             uint8_t             * p_data,
-                                             uint16_t              datalen)
+                                      uint8_t             * p_data,
+                                      uint16_t              datalen)
 {
-    return ble_nus_string_send(p_client->transport.handle, p_data, &datalen);
+    return ble_nus_string_send(p_client->transport.handle.p_nus, p_data, &datalen);
 }
 
-/**@brief Creates OpenThread network port. */
-static uint32_t port_create(mqttsn_client_t * p_client, uint16_t port)
+
+/**@brief Function for handling the data from the Nordic UART Service.
+ *
+ * @details This function will process the data received from the Nordic UART BLE Service and send
+ *          it to the UART module.
+ *
+ * @param[in] p_nus    Nordic UART Service structure.
+ * @param[in] p_data   Data to be send to UART module.
+ * @param[in] length   Length of the data.
+ */
+/**@snippet [Handling the data received over BLE] */
+static void ble_data_handler(ble_nus_evt_t * p_evt)
 {
-    
+    if (p_evt->type == BLE_NUS_EVT_RX_DATA)
+    {
+        mqttsn_packet_receiver(ptr_client, NULL, NULL, p_evt->params.rx_data.p_data, p_evt->params.rx_data.length);
+    }
+}
+
+
+// Init
+
+uint32_t mqttsn_transport_ble_init(mqttsn_client_t * p_client) 
+{
+    NULL_PARAM_CHECK(p_client);
+
+    ptr_client = p_client;
+
+    p_client->transport.handle.p_nus->data_handler = ble_data_handler;
+
+    return NRF_SUCCESS;
 }
 
