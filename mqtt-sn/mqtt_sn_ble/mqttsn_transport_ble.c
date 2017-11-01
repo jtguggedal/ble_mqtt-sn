@@ -10,12 +10,12 @@
  *
  */
 
-#include "mqttsn_transport.h"
 #include "mqttsn_transport_ble.h"
 #include "mqttsn_packet_internal.h"
 #include "mem_manager.h"
 #include "nrf_log.h"
 #include "nrf_error.h"
+#include "ble_nus.h"
 
 #include <stdint.h>
 
@@ -62,7 +62,9 @@ uint32_t mqttsn_transport_ble_init(mqttsn_client_t * p_client)
 
     ptr_client = p_client;
 
-    p_client->transport.handle.p_nus->data_handler = ble_data_handler;
+    ble_nus_t * p_nus_temp = (ble_nus_t *)p_client->transport.handle.p_nus;
+
+    p_nus_temp->data_handler = ble_data_handler;
 
     return NRF_SUCCESS;
 }

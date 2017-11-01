@@ -14,7 +14,6 @@
 #define MQTTSN_TRANSPORT_BLE_H
 
 #include "mqttsn_client.h"
-#include "ble_nus.h"
 
 
 /**@brief Sends MQTT-SN message over BLE.  

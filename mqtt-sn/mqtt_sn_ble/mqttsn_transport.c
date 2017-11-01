@@ -15,7 +15,6 @@
 #include "mem_manager.h"
 #include "nrf_log.h"
 #include "nrf_error.h"
-#include "ble_nus.h"
 #include "mqttsn_transport_ble.h"
 
 #include <stdint.h>

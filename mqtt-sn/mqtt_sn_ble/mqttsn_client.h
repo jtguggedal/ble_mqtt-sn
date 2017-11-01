@@ -16,8 +16,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "ble_nus.h"    // TODO: fix these dependencies
-
 
 /***************************************************************************************************
  * @section DEFINES
@@ -62,20 +60,18 @@
  * @section TYPES
  **************************************************************************************************/
 
-typedef enum mqttsn_client_transport_opt_t 
+/**@brief Transport layer options. */
+typedef enum mqttsn_client_transport_layer_t 
 {
-    MQTTSN_CLIENT_TRANSPORT_THREAD,
+    MQTTSN_CLIENT_TRANSPORT_THREAD = 1,
     MQTTSN_CLIENT_TRANSPORT_BLE
-} mqttsn_client_transport_opt_t;
+} mqttsn_client_transport_layer_t;
  
-/**@brief Struct for transport layer information for client. */
+/**@brief Transport layer information for client. */
 typedef struct mqttsn_client_transport_t
 {
-    union 
-    {
-        ble_nus_t * p_nus;
-    } handle;
-    mqttsn_client_transport_opt_t     type;
+    mqttsn_client_transport_layer_t     type;
+    void *                              p_handle;
 } mqttsn_client_transport_t;
 
 

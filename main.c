@@ -115,7 +115,10 @@ static ble_uuid_t m_adv_uuids[]          =                                      
 };
 
 
-/** MQTT-SN **/
+
+/***************************************************************************************************
+ * @section MQTT-SN
+ **************************************************************************************************/
 
 static mqttsn_client_t      m_client;                                       /**< An MQTT-SN client instance. */
 static mqttsn_remote_t      m_gateway_addr;                                 /**< A gateway address. */
@@ -139,11 +142,10 @@ static mqttsn_topic_t       m_topic            =                            /**<
     .topic_id     = 0,
 };
 
-static uint8_t test_data = 0;
-
 
 // Function to publish data through MQTT-SN
 void publish_data() {
+    static uint8_t test_data = 0;
     uint8_t test_data_buf[10];
     sprintf(test_data_buf, "Data: %d", test_data);
     uint8_t buf[strlen(test_data_buf)];
@@ -159,11 +161,6 @@ void subscribe_to_data()
     mqttsn_client_subscribe(&m_client, m_sub_topic.p_topic_name, data_len, &m_client.message_id);
 }
 
-
-
-/***************************************************************************************************
- * @section MQTT-SN
- **************************************************************************************************/
 
 /**@brief Turns the MQTT-SN network indication LED on.
  *
@@ -396,8 +393,6 @@ static void services_init(void)
     ble_nus_init_t nus_init;
 
     memset(&nus_init, 0, sizeof(nus_init));
-
-    nus_init.data_handler = nus_data_handler;
 
     err_code = ble_nus_init(&m_nus, &nus_init);
     APP_ERROR_CHECK(err_code);
