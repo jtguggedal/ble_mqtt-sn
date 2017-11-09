@@ -135,6 +135,9 @@
       <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client.c" />
     </folder>
     <file file_name="../../../mqtt-sn/mqtt_sn_ble/mqttsn_client_ble.h" />
+    <configuration
+      Name="Debug"
+      debug_additional_load_file="/SDK/nRF5_SDK_14.1.0_1dda907/components/softdevice/s132/hex/s132_nrf52_5.0.0_softdevice.hex" />
   </project>
   <configuration
     Name="Release"

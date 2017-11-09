@@ -127,7 +127,7 @@ static mqttsn_connect_opt_t m_connect_opt;                                  /**<
 static uint8_t              m_led_state        = 0;                         /**< Previously sent BSP_LED_2 command. */
 static uint16_t             m_msg_id           = 0;                         /**< Message ID thrown with MQTTSN_EVENT_TIMEOUT. */
 static char                 m_client_id[]      = "mqttsn_ble";               /**< The MQTT-SN Client's ID. */
-static char                 m_topic_name[]     = "topicgroup/sometopic1";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
+static char                 m_topic_name[]     = "led/setState";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
 static bool                 m_gateway_found    = false;                     /**< Stores whether a gateway has been found. */
 static char                 m_sub_topic_name[] = "topicgroup/sometopic2";
 static mqttsn_topic_t       m_sub_topic        =
@@ -149,8 +149,11 @@ void publish_data() {
     uint8_t test_data_buf[10];
     sprintf(test_data_buf, "Data: %d", test_data);
     uint8_t buf[strlen(test_data_buf)];
+
+    uint8_t thread_led_toggle_cmd[] = "m";
+
     memcpy(buf, test_data_buf, strlen(test_data_buf));
-    mqttsn_client_publish(&m_client, m_topic.topic_id, (const uint8_t *)&buf, sizeof(buf), &m_msg_id);
+    mqttsn_client_publish(&m_client, m_topic.topic_id, (const uint8_t *)&thread_led_toggle_cmd, sizeof(thread_led_toggle_cmd), &m_msg_id);
     test_data++;
 }
 
@@ -205,7 +208,7 @@ void client_options_set(void)
     m_connect_opt.client_id_len  = strlen(m_client_id);
 
     m_client.transport.type         = MQTTSN_CLIENT_TRANSPORT_BLE;
-    m_client.transport.handle.p_nus = &m_nus;
+    m_client.transport.p_handle     = &m_nus;
     m_client.client_state           = MQTTSN_CLIENT_SEARCHING_GATEWAY;
 
     memcpy(m_connect_opt.p_client_id,  (unsigned char *)m_client_id,  m_connect_opt.client_id_len);

@@ -31,7 +31,7 @@ uint32_t mqttsn_transport_write_ble(  mqttsn_client_t     * p_client,
                                       uint8_t             * p_data,
                                       uint16_t              datalen)
 {
-    return ble_nus_string_send(p_client->transport.handle.p_nus, p_data, &datalen);
+    return ble_nus_string_send(p_client->transport.p_handle, p_data, &datalen);
 }
 
 
@@ -62,7 +62,7 @@ uint32_t mqttsn_transport_ble_init(mqttsn_client_t * p_client)
 
     ptr_client = p_client;
 
-    ble_nus_t * p_nus_temp = (ble_nus_t *)p_client->transport.handle.p_nus;
+    ble_nus_t * p_nus_temp = (ble_nus_t *)p_client->transport.p_handle;
 
     p_nus_temp->data_handler = ble_data_handler;
 
