@@ -127,9 +127,9 @@ static mqttsn_connect_opt_t m_connect_opt;                                  /**<
 static uint8_t              m_led_state        = 0;                         /**< Previously sent BSP_LED_2 command. */
 static uint16_t             m_msg_id           = 0;                         /**< Message ID thrown with MQTTSN_EVENT_TIMEOUT. */
 static char                 m_client_id[]      = "mqttsn_ble";               /**< The MQTT-SN Client's ID. */
-static char                 m_topic_name[]     = "led/setState";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
+static char                 m_topic_name[]     = "sensor/sensor1";                /**< Name of the topic corresponding to subscriber's BSP_LED_2. */
 static bool                 m_gateway_found    = false;                     /**< Stores whether a gateway has been found. */
-static char                 m_sub_topic_name[] = "topicgroup/sometopic2";
+static char                 m_sub_topic_name[] = "sensor/sensor2";
 static mqttsn_topic_t       m_sub_topic        =
 {
     .p_topic_name = (unsigned char *)m_sub_topic_name,
